@@ -6,6 +6,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import DigitalID from "./pages/DigitalID";
+import WalletDashboard from "./pages/WalletDashboard";
+import DAOGovernance from "./pages/DAOGovernance";
 
 const queryClient = new QueryClient();
 
@@ -17,7 +20,9 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          {/* Additional routes would be added here for future pages */}
+          <Route path="/digital-id" element={<DigitalID />} />
+          <Route path="/wallets" element={<WalletDashboard />} />
+          <Route path="/governance" element={<DAOGovernance />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

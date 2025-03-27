@@ -1,110 +1,127 @@
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { AnimatedCard } from "@/components/ui/AnimatedCard";
+import { Button } from "@/components/ui/button";
+import { GlassPanel } from "@/components/ui/GlassPanel";
+import { Menu, X, User, Wallet, Vote, Shield, Bell } from "lucide-react";
 
-interface NavbarProps extends React.HTMLAttributes<HTMLDivElement> {}
+export const Navbar = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-const Navbar = ({ className, ...props }: NavbarProps) => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const navigationItems = [
-    { name: "Home", path: "/" },
-    { name: "Digital ID", path: "/digital-id" },
-    { name: "Connect", path: "/connect" },
-    { name: "Benefits", path: "/benefits" },
-  ];
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   return (
-    <nav
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out px-6 md:px-10",
-        isScrolled
-          ? "py-3 bg-background/80 backdrop-blur-lg shadow-sm"
-          : "py-6 bg-transparent",
-        className
-      )}
-      {...props}
-    >
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-full bg-accent flex items-center justify-center">
-            <span className="text-white font-semibold text-sm">ID</span>
-          </div>
-          <span className="font-medium text-lg">Digital ICP Club</span>
-        </Link>
-
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-1">
-          {navigationItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.path}
-              className="nav-link"
-            >
-              {item.name}
+    <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md">
+      <div className="container mx-auto px-4 max-w-6xl">
+        <div className="flex h-16 items-center justify-between">
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center">
+              <AnimatedCard animation="fade" className="mr-2 h-8 w-8 rounded-full bg-accent flex items-center justify-center text-white font-bold">
+                S1
+              </AnimatedCard>
+              <span className="font-medium">STEP1</span>
             </Link>
-          ))}
-        </div>
 
-        <div className="hidden md:flex items-center space-x-4">
-          <Button variant="outline" size="sm" className="h-9 button-animated">
-            Sign In
-          </Button>
-          <Button size="sm" className="h-9 button-animated bg-accent hover:bg-accent/90">
-            Join Now
-          </Button>
-        </div>
+            <nav className="hidden md:flex items-center ml-6 space-x-4">
+              <Link 
+                to="/" 
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Home
+              </Link>
+              <Link 
+                to="/digital-id" 
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Digital ID
+              </Link>
+              <Link 
+                to="/wallets" 
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Wallets
+              </Link>
+              <Link 
+                to="/governance" 
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Governance
+              </Link>
+            </nav>
+          </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden text-foreground"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+          <div className="flex items-center space-x-2">
+            <Button size="icon" variant="ghost" className="hidden md:flex">
+              <Bell size={18} />
+            </Button>
+            <Button asChild variant="outline" size="sm" className="hidden md:flex">
+              <Link to="/digital-id">
+                <User size={16} className="mr-2" />
+                My ID
+              </Link>
+            </Button>
+            <Button asChild className="hidden md:flex bg-accent hover:bg-accent/90" size="sm">
+              <Link to="/wallets">
+                <Wallet size={16} className="mr-2" />
+                Connect
+              </Link>
+            </Button>
+
+            <Button 
+              size="icon" 
+              variant="ghost" 
+              className="md:hidden" 
+              onClick={toggleMenu}
+            >
+              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </Button>
+          </div>
+        </div>
       </div>
 
-      {/* Mobile Navigation */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-lg border-b border-border animate-fade-in">
-          <div className="flex flex-col py-4 px-6 space-y-3">
-            {navigationItems.map((item) => (
-              <Link
-                key={item.name}
-                to={item.path}
-                className="px-4 py-3 rounded-md text-foreground hover:bg-secondary"
-                onClick={() => setIsMobileMenuOpen(false)}
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <GlassPanel className="absolute top-16 left-0 right-0 z-50 border-t md:hidden">
+          <div className="container mx-auto px-4 py-4">
+            <nav className="flex flex-col space-y-4">
+              <Link 
+                to="/" 
+                className="flex items-center p-2 hover:bg-secondary/50 rounded-md"
+                onClick={() => setIsMenuOpen(false)}
               >
-                {item.name}
+                Home
               </Link>
-            ))}
-            <div className="flex flex-col space-y-3 pt-3 border-t border-border">
-              <Button variant="outline" className="w-full button-animated">
-                Sign In
-              </Button>
-              <Button className="w-full button-animated bg-accent hover:bg-accent/90">
-                Join Now
-              </Button>
-            </div>
+              <Link 
+                to="/digital-id" 
+                className="flex items-center p-2 hover:bg-secondary/50 rounded-md"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <User size={16} className="mr-2 text-accent" />
+                Digital ID
+              </Link>
+              <Link 
+                to="/wallets" 
+                className="flex items-center p-2 hover:bg-secondary/50 rounded-md"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Wallet size={16} className="mr-2 text-accent" />
+                Wallets
+              </Link>
+              <Link 
+                to="/governance" 
+                className="flex items-center p-2 hover:bg-secondary/50 rounded-md"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Vote size={16} className="mr-2 text-accent" />
+                Governance
+              </Link>
+            </nav>
           </div>
-        </div>
+        </GlassPanel>
       )}
-    </nav>
+    </header>
   );
 };
-
-export { Navbar };
