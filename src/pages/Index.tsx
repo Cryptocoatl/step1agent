@@ -8,6 +8,7 @@ import { AnimatedCard } from "@/components/ui/AnimatedCard";
 import { Button } from "@/components/ui/button";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { AnimatedLogo } from "@/components/ui/AnimatedLogo";
+import { WalletConnect } from "@/components/wallet/WalletConnect";
 import { ArrowRight, ChevronDown, Shield, Wallet } from "lucide-react";
 import { useState } from "react";
 
