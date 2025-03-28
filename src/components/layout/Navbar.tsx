@@ -5,6 +5,7 @@ import { AnimatedCard } from "@/components/ui/AnimatedCard";
 import { Button } from "@/components/ui/button";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Menu, X, User, Wallet, Vote, Shield, Bell } from "lucide-react";
+import { AnimatedLogo } from "@/components/ui/AnimatedLogo";
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -19,9 +20,7 @@ export const Navbar = () => {
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <AnimatedCard animation="fade" className="mr-2 h-8 w-8 rounded-full bg-accent flex items-center justify-center text-white font-bold">
-                S1
-              </AnimatedCard>
+              <AnimatedLogo size="sm" className="mr-2" />
               <span className="font-medium">STEP1</span>
             </Link>
 

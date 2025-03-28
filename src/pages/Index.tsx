@@ -7,7 +7,7 @@ import { StepOneAgent } from "@/components/agent/StepOneAgent";
 import { AnimatedCard } from "@/components/ui/AnimatedCard";
 import { Button } from "@/components/ui/button";
 import { GlassPanel } from "@/components/ui/GlassPanel";
-import { WalletConnect } from "@/components/wallet/WalletConnect";
+import { AnimatedLogo } from "@/components/ui/AnimatedLogo";
 import { ArrowRight, ChevronDown, Shield, Wallet } from "lucide-react";
 import { useState } from "react";
 
@@ -33,6 +33,10 @@ const Index = () => {
                 Digital Identity Platform
               </AnimatedCard>
               
+              <div className="flex justify-center lg:justify-start mb-6">
+                <AnimatedLogo size="lg" className="animate-slide-up" />
+              </div>
+              
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 animate-slide-up">
                 Your Digital Identity,
                 <span className="text-accent"> Unified</span>
@@ -43,9 +47,9 @@ const Index = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-slide-up" style={{ animationDelay: "200ms" }}>
-                <Button className="px-6 button-animated bg-accent hover:bg-accent/90">
+                <Button className="px-6 button-animated bg-accent hover:bg-accent/90 group">
                   Get Started
-                  <ArrowRight size={16} className="ml-2" />
+                  <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                 </Button>
                 <Button variant="outline" className="px-6 button-animated">
                   Learn More
@@ -212,13 +216,17 @@ const Index = () => {
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/5 rounded-full translate-y-1/3 -translate-x-1/4"></div>
             
             <div className="relative z-10 text-center">
+              <div className="flex justify-center mb-6">
+                <AnimatedLogo size="md" />
+              </div>
               <h2 className="text-3xl sm:text-4xl font-bold mb-4">Ready to Join?</h2>
               <p className="text-muted-foreground max-w-xl mx-auto mb-8">
                 Create your digital identity today and unlock a world of exclusive benefits.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button className="px-6 py-6 text-lg button-animated bg-accent hover:bg-accent/90">
+                <Button className="px-6 py-6 text-lg button-animated bg-accent hover:bg-accent/90 group">
                   Get Started Now
+                  <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                 </Button>
                 <Button variant="outline" className="px-6 py-6 text-lg button-animated">
                   Request Demo

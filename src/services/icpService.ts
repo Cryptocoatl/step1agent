@@ -1,52 +1,36 @@
 
-import { Actor, HttpAgent } from "@dfinity/agent";
-import { idlFactory as backendIDL } from "../declarations/backend/backend.did.js";
-import { _SERVICE as BackendService } from "../declarations/backend/backend.did.d.ts";
+import { Actor, HttpAgent } from '@dfinity/agent';
+// Note: We're using type imports for the declaration files
+import type { _SERVICE } from '../declarations/backend/backend.did';
+import { idlFactory } from '../declarations/backend/backend';
 
-// Local canister IDs from .env
-const backendCanisterId = import.meta.env.VITE_CANISTER_ID_BACKEND;
-const isProduction = import.meta.env.MODE === "production";
+const DFX_NETWORK = import.meta.env.VITE_DFX_NETWORK || 'local';
+const canisterId = import.meta.env.VITE_CANISTER_ID_BACKEND;
 
-// Create agent with correct host based on production status
-const createAgent = () => {
-  const host = isProduction 
-    ? "https://ic0.app" 
-    : "http://localhost:8000";
+const createActor = () => {
+  const host = DFX_NETWORK === 'local' ? 'http://localhost:4943' : 'https://ic0.app';
   
   const agent = new HttpAgent({ host });
   
-  // When in development, we need to fetch the root key
-  if (!isProduction) {
-    // Fetch the root key for the local replica
-    return agent.fetchRootKey().then(() => agent);
+  // Fetch the root key for certificate validation during development
+  if (DFX_NETWORK === 'local') {
+    agent.fetchRootKey().catch(err => {
+      console.warn('Unable to fetch root key. Error:', err);
+      console.warn('Ensure your local replica is running');
+    });
   }
-  
-  return Promise.resolve(agent);
-};
 
-// Create backend actor
-export const getBackendActor = async (): Promise<BackendService> => {
-  const agent = await createAgent();
-  
-  // Create an actor to interact with the backend canister
-  return Actor.createActor<BackendService>(backendIDL, {
+  return Actor.createActor<_SERVICE>(idlFactory, {
     agent,
-    canisterId: backendCanisterId,
+    canisterId,
   });
 };
 
-// Digital ID functions
-export const registerDigitalID = async (displayName: string): Promise<boolean> => {
-  const backend = await getBackendActor();
-  return backend.registerDigitalID(displayName);
-};
+let actor: any;
 
-export const getDigitalID = async () => {
-  const backend = await getBackendActor();
-  return backend.getDigitalID();
-};
-
-export const linkWallet = async (walletAddress: string, chainType: string): Promise<boolean> => {
-  const backend = await getBackendActor();
-  return backend.linkWallet(walletAddress, chainType);
+export const getBackendActor = () => {
+  if (!actor) {
+    actor = createActor();
+  }
+  return actor;
 };
