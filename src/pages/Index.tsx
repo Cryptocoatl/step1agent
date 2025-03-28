@@ -10,6 +10,8 @@ import { GlassPanel } from "@/components/ui/GlassPanel";
 import { AnimatedLogo } from "@/components/ui/AnimatedLogo";
 import { SpaceBackground } from "@/components/ui/SpaceBackground";
 import { WalletConnect } from "@/components/wallet/WalletConnect";
+import HeroMissionsSection from "@/components/missions/HeroMissionsSection";
+import HeroProfileStats from "@/components/profile/HeroProfileStats";
 import { ArrowRight, ChevronDown, Shield, Wallet } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -119,6 +121,22 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Hero Profile Stats Section */}
+      <motion.section 
+        className="py-10 relative z-10"
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+      >
+        <div className="container mx-auto px-4 max-w-4xl">
+          <HeroProfileStats />
+        </div>
+      </motion.section>
+
+      {/* Hero Missions Section */}
+      <HeroMissionsSection />
 
       {/* Features Section */}
       <motion.section 
