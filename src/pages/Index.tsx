@@ -8,28 +8,44 @@ import { AnimatedCard } from "@/components/ui/AnimatedCard";
 import { Button } from "@/components/ui/button";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { AnimatedLogo } from "@/components/ui/AnimatedLogo";
+import { SpaceBackground } from "@/components/ui/SpaceBackground";
 import { WalletConnect } from "@/components/wallet/WalletConnect";
 import { ArrowRight, ChevronDown, Shield, Wallet } from "lucide-react";
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 const Index = () => {
   const [showAgent, setShowAgent] = useState(true);
   const [selectedBenefitFilter, setSelectedBenefitFilter] = useState<"all" | "defi" | "events" | "ai">("all");
 
+  // Animation variants for sections
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        duration: 0.8,
+        ease: "easeOut"
+      }
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
+      <SpaceBackground />
       <Navbar />
 
       {/* Hero Section */}
       <section className="relative pt-28 pb-20 overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.05),transparent_50%),radial-gradient(circle_at_80%_60%,rgba(89,130,206,0.1),transparent_50%)]"></div>
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.08),transparent_50%),radial-gradient(circle_at_80%_60%,rgba(89,130,206,0.15),transparent_50%)]"></div>
         
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
             <div className="flex-1 text-center lg:text-left">
               <AnimatedCard 
                 animation="fade" 
-                className="inline-block bg-secondary/50 text-accent font-medium text-sm px-4 py-1 rounded-full mb-4"
+                className="inline-block bg-secondary/30 text-accent font-medium text-sm px-4 py-1 rounded-full mb-4 backdrop-blur-sm"
               >
                 Digital Identity Platform
               </AnimatedCard>
@@ -38,50 +54,86 @@ const Index = () => {
                 <AnimatedLogo size="lg" className="animate-slide-up" />
               </div>
               
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 animate-slide-up">
+              <motion.h1 
+                className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+              >
                 Your Digital Identity,
                 <span className="text-accent"> Unified</span>
-              </h1>
+              </motion.h1>
               
-              <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0 animate-slide-up" style={{ animationDelay: "100ms" }}>
+              <motion.p 
+                className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+              >
                 Connect your wallets across multiple blockchains and unlock premium benefits in DeFi, events, and AI services.
-              </p>
+              </motion.p>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-slide-up" style={{ animationDelay: "200ms" }}>
+              <motion.div 
+                className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+              >
                 <Button className="px-6 button-animated bg-accent hover:bg-accent/90 group">
                   Get Started
                   <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                 </Button>
-                <Button variant="outline" className="px-6 button-animated">
+                <Button variant="outline" className="px-6 button-animated border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10">
                   Learn More
                 </Button>
-              </div>
+              </motion.div>
             </div>
             
-            <div className="flex-1 relative animate-blur-in">
-              <DigitalIDCard className="z-10 relative" />
+            <div className="flex-1 relative">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1, delay: 0.4 }}
+                className="relative z-10"
+              >
+                <DigitalIDCard className="z-10 relative" />
+                
+                {/* Cosmic glow effect behind the card */}
+                <div className="absolute -inset-4 bg-accent/5 rounded-full blur-3xl z-0"></div>
+              </motion.div>
             </div>
           </div>
           
           <div className="mt-20 text-center">
-            <a 
+            <motion.a 
               href="#features" 
               className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1, duration: 0.5 }}
+              whileHover={{ y: 5 }}
             >
               Explore Features
               <ChevronDown size={16} className="ml-1 animate-pulse-soft" />
-            </a>
+            </motion.a>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 bg-secondary/30">
+      <motion.section 
+        id="features" 
+        className="py-20 bg-secondary/20 backdrop-blur-sm"
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+      >
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-16">
             <AnimatedCard 
               animation="fade" 
-              className="inline-block bg-secondary text-accent font-medium text-sm px-4 py-1 rounded-full mb-4"
+              className="inline-block bg-secondary/30 text-accent font-medium text-sm px-4 py-1 rounded-full mb-4 backdrop-blur-sm"
             >
               Core Features
             </AnimatedCard>
@@ -92,7 +144,7 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <AnimatedCard animation="scale" delay={100} className="p-6">
+            <AnimatedCard animation="scale" delay={100} className="p-6 bg-white/5 backdrop-blur-md border border-white/10">
               <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center text-accent mb-4">
                 <Shield size={24} />
               </div>
@@ -100,12 +152,12 @@ const Index = () => {
               <p className="text-muted-foreground mb-4">
                 Create and manage your secure digital identity on the Internet Computer Protocol.
               </p>
-              <Button variant="link" className="p-0">
+              <Button variant="link" className="p-0 text-accent">
                 Learn More <ArrowRight size={14} className="ml-1" />
               </Button>
             </AnimatedCard>
             
-            <AnimatedCard animation="scale" delay={200} className="p-6">
+            <AnimatedCard animation="scale" delay={200} className="p-6 bg-white/5 backdrop-blur-md border border-white/10">
               <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center text-accent mb-4">
                 <Wallet size={24} />
               </div>
@@ -113,12 +165,12 @@ const Index = () => {
               <p className="text-muted-foreground mb-4">
                 Connect wallets from ICP, Solana, Bitcoin, EVM chains, and Holochain in one place.
               </p>
-              <Button variant="link" className="p-0">
+              <Button variant="link" className="p-0 text-accent">
                 Learn More <ArrowRight size={14} className="ml-1" />
               </Button>
             </AnimatedCard>
             
-            <AnimatedCard animation="scale" delay={300} className="p-6">
+            <AnimatedCard animation="scale" delay={300} className="p-6 bg-white/5 backdrop-blur-md border border-white/10">
               <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center text-accent mb-4">
                 <Shield size={24} />
               </div>
@@ -126,21 +178,27 @@ const Index = () => {
               <p className="text-muted-foreground mb-4">
                 Unlock exclusive DeFi opportunities, events, and AI services with your connected wallets.
               </p>
-              <Button variant="link" className="p-0">
+              <Button variant="link" className="p-0 text-accent">
                 Learn More <ArrowRight size={14} className="ml-1" />
               </Button>
             </AnimatedCard>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Wallet Connection Section */}
-      <section className="py-20">
+      <motion.section 
+        className="py-20"
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+      >
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-16">
             <AnimatedCard 
               animation="fade" 
-              className="inline-block bg-secondary text-accent font-medium text-sm px-4 py-1 rounded-full mb-4"
+              className="inline-block bg-secondary/30 text-accent font-medium text-sm px-4 py-1 rounded-full mb-4 backdrop-blur-sm"
             >
               Connect Your Wallets
             </AnimatedCard>
@@ -152,15 +210,21 @@ const Index = () => {
           
           <WalletConnect />
         </div>
-      </section>
+      </motion.section>
 
       {/* Benefits Section */}
-      <section className="py-20 bg-secondary/30">
+      <motion.section 
+        className="py-20 bg-secondary/20 backdrop-blur-sm"
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+      >
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-10">
             <AnimatedCard 
               animation="fade" 
-              className="inline-block bg-secondary text-accent font-medium text-sm px-4 py-1 rounded-full mb-4"
+              className="inline-block bg-secondary/30 text-accent font-medium text-sm px-4 py-1 rounded-full mb-4 backdrop-blur-sm"
             >
               Exclusive Benefits
             </AnimatedCard>
@@ -174,7 +238,7 @@ const Index = () => {
                 variant={selectedBenefitFilter === "all" ? "default" : "outline"} 
                 size="sm"
                 onClick={() => setSelectedBenefitFilter("all")}
-                className="button-animated"
+                className="button-animated bg-white/5 backdrop-blur-sm hover:bg-white/10 border-white/10"
               >
                 All Benefits
               </Button>
@@ -182,7 +246,7 @@ const Index = () => {
                 variant={selectedBenefitFilter === "defi" ? "default" : "outline"} 
                 size="sm"
                 onClick={() => setSelectedBenefitFilter("defi")}
-                className="button-animated"
+                className="button-animated bg-white/5 backdrop-blur-sm hover:bg-white/10 border-white/10"
               >
                 DeFi
               </Button>
@@ -190,7 +254,7 @@ const Index = () => {
                 variant={selectedBenefitFilter === "events" ? "default" : "outline"} 
                 size="sm"
                 onClick={() => setSelectedBenefitFilter("events")}
-                className="button-animated"
+                className="button-animated bg-white/5 backdrop-blur-sm hover:bg-white/10 border-white/10"
               >
                 Events
               </Button>
@@ -198,7 +262,7 @@ const Index = () => {
                 variant={selectedBenefitFilter === "ai" ? "default" : "outline"} 
                 size="sm"
                 onClick={() => setSelectedBenefitFilter("ai")}
-                className="button-animated"
+                className="button-animated bg-white/5 backdrop-blur-sm hover:bg-white/10 border-white/10"
               >
                 AI Services
               </Button>
@@ -207,12 +271,18 @@ const Index = () => {
           
           <BenefitsDisplay filter={selectedBenefitFilter} />
         </div>
-      </section>
+      </motion.section>
 
       {/* CTA Section */}
-      <section className="py-20">
+      <motion.section 
+        className="py-20"
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+      >
         <div className="container mx-auto px-4 max-w-6xl">
-          <GlassPanel className="p-10 max-w-4xl mx-auto relative overflow-hidden">
+          <GlassPanel className="p-10 max-w-4xl mx-auto relative overflow-hidden bg-white/5 backdrop-blur-lg border border-white/10">
             <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 rounded-full -translate-y-1/2 translate-x-1/4"></div>
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/5 rounded-full translate-y-1/3 -translate-x-1/4"></div>
             
@@ -229,14 +299,14 @@ const Index = () => {
                   Get Started Now
                   <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                 </Button>
-                <Button variant="outline" className="px-6 py-6 text-lg button-animated">
+                <Button variant="outline" className="px-6 py-6 text-lg button-animated bg-white/5 backdrop-blur-sm hover:bg-white/10 border-white/10">
                   Request Demo
                 </Button>
               </div>
             </div>
           </GlassPanel>
         </div>
-      </section>
+      </motion.section>
 
       <Footer />
 
