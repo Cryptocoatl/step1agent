@@ -14,7 +14,7 @@ export const HeroMissionsSection = () => {
       progress: 0,
       status: "available" as const,
       category: "defi" as const,
-      impact: "Low"
+      impact: "personal" as const // Changed from "Low" to match the expected type
     },
     {
       id: "mission-2",
@@ -26,7 +26,7 @@ export const HeroMissionsSection = () => {
       progress: 0,
       status: "available" as const,
       category: "dao" as const,
-      impact: "Medium"
+      impact: "community" as const // Changed from "Medium" to match the expected type
     },
     {
       id: "mission-3",
@@ -38,7 +38,7 @@ export const HeroMissionsSection = () => {
       progress: 35,
       status: "in-progress" as const,
       category: "defi" as const,
-      impact: "Medium"
+      impact: "community" as const // Changed from "Medium" to match the expected type
     },
     {
       id: "mission-4",
@@ -50,7 +50,7 @@ export const HeroMissionsSection = () => {
       progress: 0,
       status: "available" as const,
       category: "learn" as const,
-      impact: "High"
+      impact: "personal" as const // Changed from "High" to match the expected type
     },
     {
       id: "mission-5",
@@ -62,7 +62,7 @@ export const HeroMissionsSection = () => {
       progress: 100,
       status: "completed" as const,
       category: "social" as const,
-      impact: "High"
+      impact: "community" as const // Changed from "High" to match the expected type
     },
     {
       id: "mission-6",
@@ -74,7 +74,7 @@ export const HeroMissionsSection = () => {
       progress: 0,
       status: "available" as const,
       category: "defi" as const,
-      impact: "Very High"
+      impact: "global" as const // Changed from "Very High" to match the expected type
     },
   ];
 
@@ -129,3 +129,6 @@ export const HeroMissionsSection = () => {
     </div>
   );
 };
+
+// Add a default export for backward compatibility
+export default HeroMissionsSection;

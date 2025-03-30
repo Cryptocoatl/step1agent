@@ -10,7 +10,7 @@ import { GlassPanel } from "@/components/ui/GlassPanel";
 import { AnimatedLogo } from "@/components/ui/AnimatedLogo";
 import { SpaceBackground } from "@/components/ui/SpaceBackground";
 import { WalletConnect } from "@/components/wallet/WalletConnect";
-import HeroMissionsSection from "@/components/missions/HeroMissionsSection";
+import { HeroMissionsSection } from "@/components/missions/HeroMissionsSection"; // Changed to named import
 import HeroProfileStats from "@/components/profile/HeroProfileStats";
 import { ArrowRight, ChevronDown, Shield, Wallet } from "lucide-react";
 import { useState } from "react";
