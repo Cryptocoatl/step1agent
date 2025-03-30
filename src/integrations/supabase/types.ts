@@ -9,7 +9,120 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      content_completion: {
+        Row: {
+          completed_at: string | null
+          content_id: string
+          content_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          content_id: string
+          content_type: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          content_id?: string
+          content_type?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          display_name: string | null
+          id: string
+          kyc_verified: boolean | null
+          preferences: Json | null
+          projects: Json | null
+          social_links: Json | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id: string
+          kyc_verified?: boolean | null
+          preferences?: Json | null
+          projects?: Json | null
+          social_links?: Json | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          kyc_verified?: boolean | null
+          preferences?: Json | null
+          projects?: Json | null
+          social_links?: Json | null
+        }
+        Relationships: []
+      }
+      user_rewards: {
+        Row: {
+          description: string | null
+          earned_at: string | null
+          id: string
+          reward_type: string
+          token_amount: number
+          user_id: string
+        }
+        Insert: {
+          description?: string | null
+          earned_at?: string | null
+          id?: string
+          reward_type: string
+          token_amount: number
+          user_id: string
+        }
+        Update: {
+          description?: string | null
+          earned_at?: string | null
+          id?: string
+          reward_type?: string
+          token_amount?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_wallets: {
+        Row: {
+          chain_type: string
+          created_at: string | null
+          id: string
+          user_id: string
+          wallet_address: string
+          wallet_type: string
+        }
+        Insert: {
+          chain_type: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+          wallet_address: string
+          wallet_type: string
+        }
+        Update: {
+          chain_type?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+          wallet_address?: string
+          wallet_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

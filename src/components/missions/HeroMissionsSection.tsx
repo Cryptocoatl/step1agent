@@ -1,89 +1,232 @@
 
+import { useEffect, useState } from "react";
 import { MissionCard } from "@/components/missions/MissionCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/providers/SupabaseAuthProvider";
+import { awardTokens, isContentCompleted } from "@/services/rewardsService"; 
+import { getConnectedWallets } from "@/services/walletService";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+
+export interface Mission {
+  id: string;
+  title: string;
+  description: string;
+  reward: {
+    amount: number;
+    token: string;
+  };
+  difficulty: "easy" | "medium" | "hard" | "legendary";
+  timeRequired: string;
+  progress: number;
+  status: "available" | "in-progress" | "completed";
+  category: "defi" | "dao" | "social" | "learn";
+  impact: "personal" | "community" | "global";
+  actionUrl?: string;
+}
 
 export const HeroMissionsSection = () => {
-  const missions = [
-    {
-      id: "mission-1",
-      title: "Connect Your First Wallet",
-      description: "Link your first blockchain wallet to your Digital ID",
-      reward: { amount: 50, token: "STEP1" },
-      difficulty: "easy" as const,
-      timeRequired: "5 minutes",
-      progress: 0,
-      status: "available" as const,
-      category: "defi" as const,
-      impact: "personal" as const // Changed from "Low" to match the expected type
-    },
-    {
-      id: "mission-2",
-      title: "Join the STEP1 DAO",
-      description: "Become a member of the STEP1 governance DAO",
-      reward: { amount: 100, token: "STEP1" },
-      difficulty: "easy" as const,
-      timeRequired: "10 minutes",
-      progress: 0,
-      status: "available" as const,
-      category: "dao" as const,
-      impact: "community" as const // Changed from "Medium" to match the expected type
-    },
-    {
-      id: "mission-3",
-      title: "Stake STEP1 Tokens",
-      description: "Stake your STEP1 tokens in the community pool",
-      reward: { amount: 75, token: "STEP1" },
-      difficulty: "medium" as const,
-      timeRequired: "15 minutes",
-      progress: 35,
-      status: "in-progress" as const,
-      category: "defi" as const,
-      impact: "community" as const // Changed from "Medium" to match the expected type
-    },
-    {
-      id: "mission-4",
-      title: "Complete Web3 Tutorial",
-      description: "Learn the basics of Web3 and blockchain technology",
-      reward: { amount: 200, token: "STEP1" },
-      difficulty: "hard" as const,
-      timeRequired: "45 minutes",
-      progress: 0,
-      status: "available" as const,
-      category: "learn" as const,
-      impact: "personal" as const // Changed from "High" to match the expected type
-    },
-    {
-      id: "mission-5",
-      title: "Invite 3 Friends",
-      description: "Invite friends to join the STEP1 ecosystem",
-      reward: { amount: 150, token: "STEP1" },
-      difficulty: "medium" as const,
-      timeRequired: "15 minutes",
-      progress: 100,
-      status: "completed" as const,
-      category: "social" as const,
-      impact: "community" as const // Changed from "High" to match the expected type
-    },
-    {
-      id: "mission-6",
-      title: "Bridge Assets Cross-Chain",
-      description: "Move assets between different blockchains",
-      reward: { amount: 300, token: "STEP1" },
-      difficulty: "legendary" as const,
-      timeRequired: "30 minutes",
-      progress: 0,
-      status: "available" as const,
-      category: "defi" as const,
-      impact: "global" as const // Changed from "Very High" to match the expected type
-    },
-  ];
+  const { user } = useAuth();
+  const [missions, setMissions] = useState<Mission[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Initialize missions
+  useEffect(() => {
+    const initMissions = async () => {
+      setLoading(true);
+      
+      // Base mission data
+      const baseMissions: Mission[] = [
+        {
+          id: "connect-wallet",
+          title: "Connect Your First Wallet",
+          description: "Link your first blockchain wallet to your Digital ID",
+          reward: { amount: 5, token: "STEP1" },
+          difficulty: "easy",
+          timeRequired: "5 minutes",
+          progress: 0,
+          status: "available",
+          category: "defi",
+          impact: "personal",
+          actionUrl: "/digital-id"
+        },
+        {
+          id: "join-dao",
+          title: "Join the STEP1 DAO",
+          description: "Become a member of the STEP1 governance DAO",
+          reward: { amount: 10, token: "STEP1" },
+          difficulty: "easy",
+          timeRequired: "10 minutes",
+          progress: 0,
+          status: "available",
+          category: "dao",
+          impact: "community",
+          actionUrl: "/governance"
+        },
+        {
+          id: "watch-wallet-video",
+          title: "Learn About Crypto Wallets",
+          description: "Watch the educational video about cryptocurrency wallets",
+          reward: { amount: 10, token: "STEP1" },
+          difficulty: "easy",
+          timeRequired: "5 minutes",
+          progress: 0,
+          status: "available",
+          category: "learn",
+          impact: "personal",
+          actionUrl: "/learn"
+        },
+        {
+          id: "complete-profile",
+          title: "Complete Your Profile",
+          description: "Add details to your STEP1 profile to earn tokens",
+          reward: { amount: 10, token: "STEP1" },
+          difficulty: "easy",
+          timeRequired: "5 minutes",
+          progress: 0,
+          status: "available",
+          category: "social",
+          impact: "personal",
+          actionUrl: "/digital-id"
+        },
+        {
+          id: "learn-exchanges",
+          title: "Exchanges Explained",
+          description: "Learn how cryptocurrency exchanges work",
+          reward: { amount: 10, token: "STEP1" },
+          difficulty: "medium",
+          timeRequired: "7 minutes",
+          progress: 0,
+          status: "available",
+          category: "learn",
+          impact: "personal",
+          actionUrl: "/learn"
+        },
+        {
+          id: "secure-wallet",
+          title: "Secure Your Wallet",
+          description: "Learn best practices for wallet security",
+          reward: { amount: 15, token: "STEP1" },
+          difficulty: "medium",
+          timeRequired: "10 minutes",
+          progress: 0,
+          status: "available",
+          category: "security",
+          impact: "personal",
+          actionUrl: "/learn"
+        },
+      ];
+      
+      // If user is logged in, update mission statuses
+      if (user) {
+        try {
+          // Check wallet connections
+          const wallets = await getConnectedWallets();
+          
+          // Check completed educational content
+          const walletVideoCompleted = await isContentCompleted("what-is-wallet");
+          const exchangesVideoCompleted = await isContentCompleted("what-are-exchanges");
+          const securityVideoCompleted = await isContentCompleted("secure-your-keys");
+          
+          // Check profile completion
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('display_name, bio')
+            .eq('id', user.id)
+            .single();
+          
+          // Update missions based on completion status
+          const updatedMissions = baseMissions.map(mission => {
+            // Wallet connection mission
+            if (mission.id === "connect-wallet") {
+              if (wallets.length > 0) {
+                return { ...mission, status: "completed", progress: 100 };
+              }
+            }
+            
+            // Profile completion mission
+            if (mission.id === "complete-profile") {
+              if (profile?.display_name && profile?.bio) {
+                return { ...mission, status: "completed", progress: 100 };
+              } else if (profile?.display_name || profile?.bio) {
+                return { ...mission, status: "in-progress", progress: 50 };
+              }
+            }
+            
+            // Educational videos
+            if (mission.id === "watch-wallet-video" && walletVideoCompleted) {
+              return { ...mission, status: "completed", progress: 100 };
+            }
+            
+            if (mission.id === "learn-exchanges" && exchangesVideoCompleted) {
+              return { ...mission, status: "completed", progress: 100 };
+            }
+            
+            if (mission.id === "secure-wallet" && securityVideoCompleted) {
+              return { ...mission, status: "completed", progress: 100 };
+            }
+            
+            return mission;
+          });
+          
+          setMissions(updatedMissions);
+        } catch (error) {
+          console.error("Error updating mission statuses:", error);
+          setMissions(baseMissions);
+        }
+      } else {
+        setMissions(baseMissions);
+      }
+      
+      setLoading(false);
+    };
+    
+    initMissions();
+  }, [user]);
+
+  const handleStartMission = async (mission: Mission) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to start missions",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // In a real implementation, this would navigate to the mission screen
+    // For now, we'll just simulate starting the mission
+    if (mission.status === "available") {
+      // Update local state
+      setMissions(prev => 
+        prev.map(m => 
+          m.id === mission.id 
+            ? { ...m, status: "in-progress", progress: 10 } 
+            : m
+        )
+      );
+      
+      toast({
+        title: "Mission Started",
+        description: `You've started the "${mission.title}" mission`
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="py-12 text-center">
+        <p className="text-muted-foreground">Loading missions...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="py-12">
       <div className="text-center mb-10">
         <h2 className="text-3xl font-bold mb-3">Hero Missions</h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Complete missions to earn rewards and increase your impact in the ecosystem
+          Complete missions to earn STEP1 tokens and increase your impact in the ecosystem
         </p>
       </div>
       
@@ -98,31 +241,51 @@ export const HeroMissionsSection = () => {
         
         <TabsContent value="all" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {missions.map((mission) => (
-            <MissionCard key={mission.id} mission={mission} />
+            <MissionCard 
+              key={mission.id} 
+              mission={mission} 
+              onMissionAction={handleStartMission}
+            />
           ))}
         </TabsContent>
         
         <TabsContent value="defi" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {missions.filter(m => m.category === 'defi').map((mission) => (
-            <MissionCard key={mission.id} mission={mission} />
+            <MissionCard 
+              key={mission.id} 
+              mission={mission} 
+              onMissionAction={handleStartMission}
+            />
           ))}
         </TabsContent>
         
         <TabsContent value="dao" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {missions.filter(m => m.category === 'dao').map((mission) => (
-            <MissionCard key={mission.id} mission={mission} />
+            <MissionCard 
+              key={mission.id} 
+              mission={mission} 
+              onMissionAction={handleStartMission}
+            />
           ))}
         </TabsContent>
         
         <TabsContent value="learn" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {missions.filter(m => m.category === 'learn').map((mission) => (
-            <MissionCard key={mission.id} mission={mission} />
+            <MissionCard 
+              key={mission.id} 
+              mission={mission} 
+              onMissionAction={handleStartMission}
+            />
           ))}
         </TabsContent>
         
         <TabsContent value="social" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {missions.filter(m => m.category === 'social').map((mission) => (
-            <MissionCard key={mission.id} mission={mission} />
+            <MissionCard 
+              key={mission.id} 
+              mission={mission} 
+              onMissionAction={handleStartMission}
+            />
           ))}
         </TabsContent>
       </Tabs>

@@ -1,10 +1,11 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { cn } from "@/lib/utils";
-import { getBackendActor } from "@/services/icpService";
 import { toast } from "@/hooks/use-toast";
+import { connectWallet, getConnectedWallets, disconnectWallet } from "@/services/walletService";
+import { useAuth } from "@/providers/SupabaseAuthProvider";
 
 interface WalletOption {
   id: string;
@@ -67,70 +68,115 @@ export const MultiChainWalletConnector = ({
   className,
   onWalletConnected 
 }: MultiChainWalletConnectorProps) => {
-  const [connectedWallets, setConnectedWallets] = useState<string[]>([]);
+  const { user } = useAuth();
+  const [connectedWallets, setConnectedWallets] = useState<Record<string, string>>({});
   const [connectingWallet, setConnectingWallet] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load connected wallets from Supabase
+  useEffect(() => {
+    if (user) {
+      const loadWallets = async () => {
+        setIsLoading(true);
+        const wallets = await getConnectedWallets();
+        
+        // Create a mapping of chainType to wallet ID
+        const walletMap: Record<string, string> = {};
+        wallets.forEach(wallet => {
+          walletMap[wallet.chain_type] = wallet.id;
+        });
+        
+        setConnectedWallets(walletMap);
+        setIsLoading(false);
+      };
+      
+      loadWallets();
+    } else {
+      setConnectedWallets({});
+      setIsLoading(false);
+    }
+  }, [user]);
 
   const handleConnect = async (wallet: WalletOption) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to connect wallets",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setConnectingWallet(wallet.id);
     
     try {
-      // This is a simplified mock of wallet connection
-      // In a real implementation, this would use wallet-specific SDKs
-      
       // Generate a mock wallet address based on wallet type
       const mockAddresses: {[key: string]: string} = {
-        icp: "aaaaa-bbbbb-ccccc-ddddd-eee",
-        ethereum: "0x1234567890abcdef1234567890abcdef12345678",
-        solana: "ABCDEFGhijklmnopqrstuvwxyz1234567890abcdefghijk",
-        bitcoin: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
-        holochain: "uhCAkS1ChFDPqGi_iOQJ-xwXQbYEwXVwMbK8SpJrjNd7vK2B7h-Ou",
+        icp: `${wallet.id}_${Math.random().toString(36).substring(2, 10)}`,
+        ethereum: `0x${Math.random().toString(36).substring(2, 10)}`,
+        solana: `${Math.random().toString(36).substring(2, 15)}`,
+        bitcoin: `bc1${Math.random().toString(36).substring(2, 10)}`,
+        holochain: `holo_${Math.random().toString(36).substring(2, 10)}`,
       };
       
       const walletAddress = mockAddresses[wallet.id] || "unknown";
       
-      // In a real implementation, this would verify the wallet connection
-      // For now, we'll simulate a connection to the ICP backend
-      const actor = getBackendActor();
-      await actor.linkWallet(walletAddress, wallet.chainType);
-      
-      // Update local state
-      setConnectedWallets((prev) => 
-        prev.includes(wallet.id) ? prev : [...prev, wallet.id]
+      // Connect wallet using our service
+      const success = await connectWallet(
+        walletAddress,
+        wallet.id,
+        wallet.chainType
       );
       
-      // Trigger callback if provided
-      if (onWalletConnected) {
-        onWalletConnected(wallet.name, walletAddress);
+      if (success) {
+        // Refresh the wallets
+        const wallets = await getConnectedWallets();
+        const walletMap: Record<string, string> = {};
+        wallets.forEach(w => {
+          walletMap[w.chain_type] = w.id;
+        });
+        setConnectedWallets(walletMap);
+        
+        // Trigger callback if provided
+        if (onWalletConnected) {
+          onWalletConnected(wallet.name, walletAddress);
+        }
       }
-      
-      toast({
-        title: "Wallet Connected",
-        description: `Your ${wallet.name} wallet has been successfully linked`,
-      });
     } catch (error) {
       console.error("Error connecting wallet:", error);
-      toast({
-        title: "Connection Failed",
-        description: "Could not connect to the selected wallet. Please try again.",
-        variant: "destructive",
-      });
     } finally {
       setConnectingWallet(null);
     }
   };
 
-  const handleDisconnect = async (walletId: string) => {
-    // In a real implementation, this would disconnect the wallet using its SDK
-    // and update the backend
+  const handleDisconnect = async (walletId: string, chainType: string) => {
+    if (!user) return;
     
-    // For now, just update local state
-    setConnectedWallets((prev) => prev.filter((id) => id !== walletId));
-    
-    toast({
-      title: "Wallet Disconnected",
-      description: "Your wallet has been disconnected from your Digital ID",
-    });
+    try {
+      // Get the wallet ID from our connected wallets map
+      const id = connectedWallets[chainType];
+      if (!id) return;
+      
+      const success = await disconnectWallet(id);
+      
+      if (success) {
+        // Update local state
+        const updatedWallets = { ...connectedWallets };
+        delete updatedWallets[chainType];
+        setConnectedWallets(updatedWallets);
+      }
+    } catch (error) {
+      console.error("Error disconnecting wallet:", error);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="w-full py-4 text-center">
+        <p className="text-muted-foreground">Loading wallets...</p>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("w-full", className)}>
@@ -140,7 +186,7 @@ export const MultiChainWalletConnector = ({
             key={wallet.id}
             className={cn(
               "p-4 transition-all duration-300",
-              connectedWallets.includes(wallet.id) 
+              connectedWallets[wallet.chainType] 
                 ? "border-accent/40 shadow-md" 
                 : "hover:border-accent/20"
             )}
@@ -159,11 +205,11 @@ export const MultiChainWalletConnector = ({
                 </div>
               </div>
               
-              {connectedWallets.includes(wallet.id) ? (
+              {connectedWallets[wallet.chainType] ? (
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => handleDisconnect(wallet.id)}
+                  onClick={() => handleDisconnect(wallet.id, wallet.chainType)}
                   className="button-animated"
                 >
                   Disconnect
@@ -172,7 +218,7 @@ export const MultiChainWalletConnector = ({
                 <Button 
                   size="sm"
                   onClick={() => handleConnect(wallet)}
-                  disabled={connectingWallet === wallet.id}
+                  disabled={connectingWallet === wallet.id || !user}
                   className="button-animated bg-accent hover:bg-accent/90"
                 >
                   {connectingWallet === wallet.id ? "Connecting..." : "Connect"}
@@ -180,7 +226,7 @@ export const MultiChainWalletConnector = ({
               )}
             </div>
             
-            {connectedWallets.includes(wallet.id) && (
+            {connectedWallets[wallet.chainType] && (
               <div className="mt-3 pt-3 border-t border-border">
                 <p className="text-sm text-muted-foreground flex items-center">
                   <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>

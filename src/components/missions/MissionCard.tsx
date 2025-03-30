@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Award, Clock, Flame, Shield, Star, Zap } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 export interface Mission {
   id: string;
@@ -21,6 +22,7 @@ export interface Mission {
   status: "available" | "in-progress" | "completed";
   category: "defi" | "dao" | "social" | "learn";
   impact: "personal" | "community" | "global";
+  actionUrl?: string;
 }
 
 const difficultyConfig = {
@@ -46,9 +48,10 @@ const impactConfig = {
 interface MissionCardProps {
   mission: Mission;
   className?: string;
+  onMissionAction?: (mission: Mission) => void;
 }
 
-export const MissionCard = ({ mission, className }: MissionCardProps) => {
+export const MissionCard = ({ mission, className, onMissionAction }: MissionCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const difficulty = difficultyConfig[mission.difficulty];
   const category = categoryConfig[mission.category];
@@ -64,7 +67,40 @@ export const MissionCard = ({ mission, className }: MissionCardProps) => {
   const statusButtons = {
     available: { text: "Start Mission", variant: "default" as const },
     "in-progress": { text: "Continue", variant: "default" as const },
-    completed: { text: "Claimed", variant: "outline" as const },
+    completed: { text: "Completed", variant: "outline" as const },
+  };
+
+  const handleAction = () => {
+    if (onMissionAction && mission.status !== "completed") {
+      onMissionAction(mission);
+    }
+  };
+
+  const ActionButton = () => {
+    if (mission.actionUrl && mission.status !== "completed") {
+      return (
+        <Link to={mission.actionUrl} className="w-full">
+          <Button
+            className="w-full button-animated"
+            variant={statusButtons[mission.status].variant}
+            onClick={handleAction}
+          >
+            {statusButtons[mission.status].text}
+          </Button>
+        </Link>
+      );
+    }
+    
+    return (
+      <Button
+        className="w-full button-animated"
+        variant={statusButtons[mission.status].variant}
+        disabled={mission.status === "completed"}
+        onClick={handleAction}
+      >
+        {statusButtons[mission.status].text}
+      </Button>
+    );
   };
 
   return (
@@ -136,13 +172,7 @@ export const MissionCard = ({ mission, className }: MissionCardProps) => {
               </div>
             </div>
 
-            <Button
-              className="w-full button-animated"
-              variant={statusButtons[mission.status].variant}
-              disabled={mission.status === "completed"}
-            >
-              {statusButtons[mission.status].text}
-            </Button>
+            <ActionButton />
             
             {/* Impact badge */}
             {mission.impact === "global" && (
