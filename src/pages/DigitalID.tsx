@@ -59,6 +59,7 @@ const DigitalID = () => {
             tokenBalance={tokenBalance}
             progress={progress}
             profile={profile}
+            setCompletedSteps={setCompletedSteps}
           />
         </div>
       </div>

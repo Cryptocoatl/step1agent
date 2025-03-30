@@ -21,6 +21,7 @@ interface DigitalIDContentProps {
   tokenBalance: number;
   progress: number;
   profile: any;
+  setCompletedSteps: (steps: React.SetStateAction<number[]>) => void;
 }
 
 export const DigitalIDContent = ({
@@ -35,7 +36,8 @@ export const DigitalIDContent = ({
   setDisplayName,
   tokenBalance,
   progress,
-  profile
+  profile,
+  setCompletedSteps
 }: DigitalIDContentProps) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">

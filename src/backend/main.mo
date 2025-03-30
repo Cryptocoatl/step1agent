@@ -3,6 +3,7 @@ import Debug "mo:base/Debug";
 import Principal "mo:base/Principal";
 import HashMap "mo:base/HashMap";
 import Text "mo:base/Text";
+import Array "mo:base/Array";
 
 actor {
   // User Digital ID storage
@@ -43,18 +44,41 @@ actor {
     
     switch (users.get(caller)) {
       case (null) {
-        return false;
+        // User doesn't exist, create a new profile first
+        let newID : DigitalID = {
+          displayName = "STEP1 User";
+          wallets = [walletAddress];
+          daoMemberships = [];
+          createdAt = 0; // Would use Time module in production
+        };
+        users.put(caller, newID);
+        Debug.print("New wallet linked for new user: " # walletAddress # " on " # chainType);
+        return true;
       };
       case (?userID) {
-        let updatedWallets = Array.append<Text>(userID.wallets, [walletAddress]);
-        let updatedID : DigitalID = {
-          displayName = userID.displayName;
-          wallets = updatedWallets;
-          daoMemberships = userID.daoMemberships;
-          createdAt = userID.createdAt;
+        // Check if wallet already exists to avoid duplicates
+        let walletExists = Array.find<Text>(userID.wallets, func(w) { w == walletAddress });
+        
+        switch (walletExists) {
+          case (null) {
+            // Wallet doesn't exist, add it
+            let updatedWallets = Array.append<Text>(userID.wallets, [walletAddress]);
+            let updatedID : DigitalID = {
+              displayName = userID.displayName;
+              wallets = updatedWallets;
+              daoMemberships = userID.daoMemberships;
+              createdAt = userID.createdAt;
+            };
+            users.put(caller, updatedID);
+            Debug.print("Wallet linked: " # walletAddress # " on " # chainType);
+            return true;
+          };
+          case (_) {
+            // Wallet already exists
+            Debug.print("Wallet already linked: " # walletAddress);
+            return false;
+          };
         };
-        users.put(caller, updatedID);
-        return true;
       };
     };
   };
