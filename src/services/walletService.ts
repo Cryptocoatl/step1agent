@@ -35,10 +35,11 @@ export const connectWallet = async (
       return false;
     }
     
-    // Connect the wallet
+    // Connect the wallet by inserting into database with user_id from auth
     const { error } = await supabase
       .from('user_wallets')
       .insert({
+        user_id: supabase.auth.getUser().then(res => res.data.user?.id) ?? '',
         wallet_address: walletAddress,
         wallet_type: walletType,
         chain_type: chainType

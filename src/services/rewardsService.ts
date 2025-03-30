@@ -22,9 +22,18 @@ export const awardTokens = async (
   description: string
 ): Promise<boolean> => {
   try {
+    // Get current user ID
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData.user?.id;
+    
+    if (!userId) {
+      throw new Error('User not authenticated');
+    }
+    
     const { data, error } = await supabase
       .from('user_rewards')
       .insert({
+        user_id: userId,
         reward_type: rewardType,
         token_amount: tokenAmount,
         description: description
@@ -55,6 +64,14 @@ export const markContentCompleted = async (
   contentType: ContentType
 ): Promise<boolean> => {
   try {
+    // Get current user ID
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData.user?.id;
+    
+    if (!userId) {
+      throw new Error('User not authenticated');
+    }
+    
     // Check if already completed
     const { data: existing } = await supabase
       .from('content_completion')
@@ -70,6 +87,7 @@ export const markContentCompleted = async (
     const { error } = await supabase
       .from('content_completion')
       .insert({
+        user_id: userId,
         content_id: contentId,
         content_type: contentType
       });
@@ -86,10 +104,16 @@ export const markContentCompleted = async (
 // Function to check if a piece of content is completed
 export const isContentCompleted = async (contentId: string): Promise<boolean> => {
   try {
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData.user?.id;
+    
+    if (!userId) return false;
+    
     const { data, error } = await supabase
       .from('content_completion')
       .select()
       .eq('content_id', contentId)
+      .eq('user_id', userId)
       .single();
     
     if (error && error.code !== 'PGRST116') { // PGRST116 is the "not found" error code
@@ -106,9 +130,15 @@ export const isContentCompleted = async (contentId: string): Promise<boolean> =>
 // Function to get total token balance
 export const getTotalTokenBalance = async (): Promise<number> => {
   try {
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData.user?.id;
+    
+    if (!userId) return 0;
+    
     const { data, error } = await supabase
       .from('user_rewards')
-      .select('token_amount');
+      .select('token_amount')
+      .eq('user_id', userId);
     
     if (error) throw error;
     
@@ -122,9 +152,15 @@ export const getTotalTokenBalance = async (): Promise<number> => {
 // Function to get all rewards
 export const getUserRewards = async () => {
   try {
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData.user?.id;
+    
+    if (!userId) return [];
+    
     const { data, error } = await supabase
       .from('user_rewards')
       .select('*')
+      .eq('user_id', userId)
       .order('earned_at', { ascending: false });
     
     if (error) throw error;
