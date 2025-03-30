@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { AnimatedCard } from "@/components/ui/AnimatedCard";
 import { Footer } from "@/components/layout/Footer";
@@ -72,7 +73,7 @@ const WalletDashboard = () => {
       type: "system",
       title: "Wallet Synchronized",
       message: "Your wallet data has been successfully synchronized across all connected chains.",
-      read: false // Add the missing 'read' property
+      read: false
     });
   };
 

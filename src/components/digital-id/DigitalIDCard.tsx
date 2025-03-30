@@ -4,9 +4,9 @@ import { GlassPanel } from "@/components/ui/GlassPanel";
 import { cn } from "@/lib/utils";
 import { CheckCircle, ChevronDown, ChevronUp, Shield, User, Globe, Star, Zap } from "lucide-react";
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, HTMLMotionProps } from "framer-motion";
 
-interface DigitalIDCardProps extends React.HTMLAttributes<HTMLDivElement> {
+interface DigitalIDCardProps extends Omit<HTMLMotionProps<"div">, "onDrag"> {
   expanded?: boolean;
 }
 
