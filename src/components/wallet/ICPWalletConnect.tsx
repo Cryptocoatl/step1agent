@@ -151,7 +151,10 @@ const ICPWalletConnect = ({ className, onWalletConnected, ...props }: ICPWalletC
                     <h3 className="font-medium flex items-center">
                       {wallet.name}
                       {!isWalletAvailable(wallet.id) && (
-                        <Info size={14} className="ml-2 text-muted-foreground" title="Not detected in browser" />
+                        <span className="ml-2 text-muted-foreground flex items-center gap-1" aria-label="Not detected in browser">
+                          <Info size={14} className="text-muted-foreground" />
+                          <span className="text-xs">Not detected</span>
+                        </span>
                       )}
                     </h3>
                     <p className="text-sm text-muted-foreground">{wallet.description}</p>
