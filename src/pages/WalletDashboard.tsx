@@ -13,10 +13,13 @@ import { ConnectedAppsPanel } from "@/components/wallet/ConnectedAppsPanel";
 import { WalletConnect } from "@/components/wallet/WalletConnect";
 import { WalletBenefitsTab } from "@/components/wallet/WalletBenefitsTab";
 import { TransactionHistoryTab } from "@/components/wallet/TransactionHistoryTab";
+import { NotificationCenter } from "@/components/notifications/NotificationCenter";
+import { useNotifications } from "@/hooks/use-notifications";
 
 const WalletDashboard = () => {
   const [showAgent, setShowAgent] = useState(false);
   const [connectedWallets, setConnectedWallets] = useState(['icp']);
+  const { notifications, markAllAsRead, addNotification } = useNotifications();
   
   const assets: AssetType[] = [
     {
@@ -64,7 +67,19 @@ const WalletDashboard = () => {
       title: "Wallets synchronized",
       description: "Your wallet data has been updated.",
     });
+    
+    // Add a notification for the sync action
+    addNotification({
+      type: "system",
+      title: "Wallet Synchronized",
+      message: "Your wallet data has been successfully synchronized across all connected chains.",
+    });
   };
+
+  // Filter notifications for the transaction history tab
+  const transactionNotifications = notifications.filter(
+    notification => notification.type === "transaction"
+  );
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -72,10 +87,18 @@ const WalletDashboard = () => {
       
       <div className="flex-1">
         <div className="container mx-auto px-4 py-12 max-w-6xl">
-          <WalletHeader
-            onSyncWallets={handleSync}
-            onGetHelp={() => setShowAgent(true)}
-          />
+          <div className="flex justify-between items-center mb-8">
+            <WalletHeader
+              onSyncWallets={handleSync}
+              onGetHelp={() => setShowAgent(true)}
+            />
+            <div className="flex items-center space-x-2">
+              <NotificationCenter 
+                notifications={notifications}
+                onMarkAllAsRead={markAllAsRead}
+              />
+            </div>
+          </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             <AnimatedCard animation="fade" className="lg:col-span-2">
@@ -108,7 +131,7 @@ const WalletDashboard = () => {
             </TabsContent>
             
             <TabsContent value="history" className="p-4 bg-background/50 rounded-lg">
-              <TransactionHistoryTab />
+              <TransactionHistoryTab transactionNotifications={transactionNotifications} />
             </TabsContent>
           </Tabs>
         </div>

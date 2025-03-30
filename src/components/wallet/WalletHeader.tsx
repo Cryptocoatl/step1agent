@@ -2,7 +2,6 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
 
 interface WalletHeaderProps {
   onSyncWallets: () => void;
@@ -11,7 +10,7 @@ interface WalletHeaderProps {
 
 export const WalletHeader = ({ onSyncWallets, onGetHelp }: WalletHeaderProps) => {
   return (
-    <div className="mb-8">
+    <div>
       <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center mb-6">
         <ArrowLeft size={16} className="mr-2" />
         Back to Home
