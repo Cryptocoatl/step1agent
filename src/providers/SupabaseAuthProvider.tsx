@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
@@ -12,6 +13,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, metadata?: any) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  isEmailVerified: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,13 +22,37 @@ export const SupabaseAuthProvider = ({ children }: { children: React.ReactNode }
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
+        console.log('Auth state changed:', event);
         setSession(session);
         setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          setIsEmailVerified(session.user.email_confirmed_at != null);
+          
+          // Check if user has a profile already
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+            
+          // If new sign-up and email is verified, redirect to digital-id
+          if (event === 'SIGNED_IN' && session.user.email_confirmed_at) {
+            // If this is a new user that just confirmed email
+            toast({
+              title: "Email verified successfully",
+              description: "Your STEP1 Digital ID is being set up",
+            });
+            navigate('/digital-id');
+          }
+        }
         
         if (event === 'SIGNED_IN') {
           toast({
@@ -38,6 +64,15 @@ export const SupabaseAuthProvider = ({ children }: { children: React.ReactNode }
             title: "Signed out",
             description: "You have been signed out"
           });
+        } else if (event === 'USER_UPDATED') {
+          // Check if email was just confirmed
+          if (session?.user?.email_confirmed_at) {
+            setIsEmailVerified(true);
+            toast({
+              title: "Email verified",
+              description: "Your email has been successfully verified!"
+            });
+          }
         }
       }
     );
@@ -46,13 +81,16 @@ export const SupabaseAuthProvider = ({ children }: { children: React.ReactNode }
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user) {
+        setIsEmailVerified(session.user.email_confirmed_at != null);
+      }
       setIsLoading(false);
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   // Authentication functions
   const signIn = async (email: string, password: string) => {
@@ -81,7 +119,10 @@ export const SupabaseAuthProvider = ({ children }: { children: React.ReactNode }
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: metadata }
+        options: { 
+          data: metadata,
+          emailRedirectTo: `${window.location.origin}/auth?verified=true` 
+        }
       });
       
       if (error) {
@@ -89,8 +130,8 @@ export const SupabaseAuthProvider = ({ children }: { children: React.ReactNode }
       }
       
       toast({
-        title: "Account created",
-        description: "Please check your email for verification"
+        title: "Verification email sent",
+        description: "Please check your email to verify your account"
       });
     } catch (error: any) {
       toast({
@@ -156,7 +197,8 @@ export const SupabaseAuthProvider = ({ children }: { children: React.ReactNode }
     signIn,
     signUp,
     signOut,
-    resetPassword
+    resetPassword,
+    isEmailVerified
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

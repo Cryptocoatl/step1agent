@@ -4,11 +4,11 @@ import { useAuth } from "@/providers/SupabaseAuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { awardTokens, getTotalTokenBalance } from "@/services/rewardsService";
-import { getConnectedWallets } from "@/services/walletService";
+import { getConnectedWallets, connectWallet } from "@/services/walletService";
 import { Step } from "@/components/digital-id/VerificationSteps";
 
 export const useDigitalId = () => {
-  const { user } = useAuth();
+  const { user, isEmailVerified } = useAuth();
   const [activeStep, setActiveStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -34,6 +34,56 @@ export const useDigitalId = () => {
       description: "Register for DAO participation"
     }
   ];
+  
+  // Automatically generate ICP wallet address if user is verified
+  useEffect(() => {
+    if (user && isEmailVerified) {
+      const createICPWallet = async () => {
+        try {
+          // Only create wallet if user doesn't have one already
+          const wallets = await getConnectedWallets();
+          const hasICPWallet = wallets.some(wallet => wallet.chain_type === 'ICP');
+          
+          if (!hasICPWallet) {
+            // Generate a deterministic "simulated" ICP address based on the user's email
+            // In a real implementation, this would call the ICP canister to create a real wallet
+            const emailHash = user.email ? 
+              await crypto.subtle.digest(
+                'SHA-256', 
+                new TextEncoder().encode(user.email)
+              ) : null;
+            
+            if (emailHash) {
+              const hashArray = Array.from(new Uint8Array(emailHash));
+              const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+              
+              // Format as ICP address
+              const icpAddress = `${hashHex.substring(0, 8)}-${hashHex.substring(8, 16)}`;
+              
+              // Connect the wallet
+              await connectWallet(icpAddress, 'Smart Wallet', 'ICP');
+              
+              toast({
+                title: "ICP Smart Wallet Created",
+                description: "Your STEP1 Identity is now connected to your ICP wallet"
+              });
+              
+              // Award tokens for connecting wallet
+              await awardTokens(
+                'wallet_connect',
+                10,
+                'Smart Wallet created and connected to your STEP1 identity'
+              );
+            }
+          }
+        } catch (error) {
+          console.error("Error creating ICP wallet:", error);
+        }
+      };
+      
+      createICPWallet();
+    }
+  }, [user, isEmailVerified]);
   
   // Fetch user data
   useEffect(() => {
@@ -214,6 +264,7 @@ export const useDigitalId = () => {
     profile,
     tokenBalance,
     progress,
-    completeStep
+    completeStep,
+    isEmailVerified
   };
 };

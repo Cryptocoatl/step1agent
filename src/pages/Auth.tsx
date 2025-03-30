@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/providers/SupabaseAuthProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,12 +9,13 @@ import { AnimatedCard } from "@/components/ui/AnimatedCard";
 import { SpaceBackground } from "@/components/ui/SpaceBackground";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Navigate, Link } from "react-router-dom";
+import { Navigate, Link, useLocation } from "react-router-dom";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertCircle, Mail, Key, LogIn, UserPlus, Lock } from "lucide-react";
+import { AlertCircle, Mail, Key, LogIn, UserPlus, Lock, CheckCircle2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -38,6 +39,22 @@ const Auth = () => {
   const { user, signIn, signUp, resetPassword, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("login");
   const [showReset, setShowReset] = useState(false);
+  const [emailVerificationSent, setEmailVerificationSent] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState("");
+  const location = useLocation();
+
+  // Check for verification success from URL parameter
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const verified = params.get('verified');
+    
+    if (verified === 'true' && user) {
+      toast({
+        title: "Email verified successfully",
+        description: "You can now access all STEP1 features",
+      });
+    }
+  }, [location, user]);
 
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -74,7 +91,8 @@ const Auth = () => {
   const onSignupSubmit = async (values: z.infer<typeof signupSchema>) => {
     try {
       await signUp(values.email, values.password);
-      setActiveTab("login");
+      setEmailVerificationSent(true);
+      setVerificationEmail(values.email);
     } catch (error) {
       console.error("Signup error:", error);
     }
@@ -111,7 +129,40 @@ const Auth = () => {
               </div>
               
               <GlassPanel className="p-6">
-                {showReset ? (
+                {emailVerificationSent ? (
+                  <div className="text-center py-6">
+                    <div className="flex justify-center mb-4">
+                      <CheckCircle2 className="h-16 w-16 text-green-500" />
+                    </div>
+                    <h2 className="text-xl font-medium mb-3">Verification Email Sent</h2>
+                    <p className="text-muted-foreground mb-6">
+                      We've sent a verification email to <strong>{verificationEmail}</strong>.
+                      Please check your inbox and click the verification link.
+                    </p>
+                    <div className="space-y-4">
+                      <Button 
+                        onClick={() => loginForm.setValue('email', verificationEmail)}
+                        variant="outline" 
+                        className="w-full"
+                      >
+                        Return to Login
+                      </Button>
+                      <p className="text-sm text-muted-foreground">
+                        Didn't receive the email? Check your spam folder or{" "}
+                        <Button 
+                          variant="link" 
+                          className="p-0 h-auto text-sm"
+                          onClick={() => {
+                            setEmailVerificationSent(false);
+                            setActiveTab("signup");
+                          }}
+                        >
+                          try again
+                        </Button>
+                      </p>
+                    </div>
+                  </div>
+                ) : showReset ? (
                   <div>
                     <h2 className="text-xl font-medium mb-4">Reset Password</h2>
                     <Form {...resetForm}>
@@ -318,9 +369,9 @@ const Auth = () => {
                   <div className="flex items-start">
                     <AlertCircle className="mr-2 h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
                     <p className="text-sm text-muted-foreground">
-                      By creating an account, you'll earn your first STEP1 tokens and begin your 
-                      journey into the decentralized world. Connect wallets, complete educational 
-                      content, and build your digital identity.
+                      By creating an account, we'll automatically create your ICP smart wallet and 
+                      STEP1 digital identity. You'll earn your first STEP1 tokens and begin your 
+                      journey into the decentralized world.
                     </p>
                   </div>
                 </div>

@@ -28,11 +28,8 @@ export const connectWallet = async (
       .single();
     
     if (existingWallet) {
-      toast({
-        title: 'Wallet already connected',
-        description: `This ${chainType.toUpperCase()} wallet is already linked to your account.`
-      });
-      return false;
+      console.log(`Wallet ${walletAddress} already connected`);
+      return true; // We consider this a success since the wallet is already connected
     }
     
     // Get current user ID
@@ -53,17 +50,20 @@ export const connectWallet = async (
     
     if (error) throw error;
     
-    // Award STEP1 tokens
-    await awardTokens(
-      'wallet_connect',
-      5,
-      `Reward for connecting your ${chainType.toUpperCase()} wallet`
-    );
-    
-    toast({
-      title: 'Wallet Connected Successfully',
-      description: `Your ${chainType.toUpperCase()} wallet has been linked to your STEP1 account.`
-    });
+    // Award STEP1 tokens only if this is not an automatic connection
+    // The auto-generated wallet rewards are handled separately
+    if (walletType !== 'Smart Wallet') {
+      await awardTokens(
+        'wallet_connect',
+        5,
+        `Reward for connecting your ${chainType.toUpperCase()} wallet`
+      );
+      
+      toast({
+        title: 'Wallet Connected Successfully',
+        description: `Your ${chainType.toUpperCase()} wallet has been linked to your STEP1 account.`
+      });
+    }
     
     return true;
   } catch (error) {
@@ -80,13 +80,19 @@ export const connectWallet = async (
 // Function to get all connected wallets
 export const getConnectedWallets = async (): Promise<Wallet[]> => {
   try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return [];
+    }
+    
     const { data, error } = await supabase
       .from('user_wallets')
-      .select('*');
+      .select('*')
+      .eq('user_id', user.id);
     
     if (error) throw error;
     
-    return data;
+    return data || [];
   } catch (error) {
     console.error('Error getting connected wallets:', error);
     return [];
@@ -116,6 +122,17 @@ export const disconnectWallet = async (walletId: string): Promise<boolean> => {
       description: 'There was an error disconnecting your wallet. Please try again.',
       variant: 'destructive'
     });
+    return false;
+  }
+};
+
+// Function to check if a user has a specific type of wallet
+export const hasWalletType = async (chainType: string): Promise<boolean> => {
+  try {
+    const wallets = await getConnectedWallets();
+    return wallets.some(wallet => wallet.chain_type === chainType);
+  } catch (error) {
+    console.error('Error checking wallet type:', error);
     return false;
   }
 };
