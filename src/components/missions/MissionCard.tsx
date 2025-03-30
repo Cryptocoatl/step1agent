@@ -20,6 +20,7 @@ export interface Mission {
   progress: number;
   status: "available" | "in-progress" | "completed";
   category: "defi" | "dao" | "social" | "learn";
+  impact: "personal" | "community" | "global";
 }
 
 const difficultyConfig = {
@@ -36,6 +37,12 @@ const categoryConfig = {
   learn: { label: "Learn", color: "bg-green-400/20 text-green-400" },
 };
 
+const impactConfig = {
+  personal: { label: "Personal Growth", bg: "from-blue-400/20 to-green-400/20" },
+  community: { label: "Community Impact", bg: "from-yellow-400/20 to-orange-400/20" },
+  global: { label: "Global Transformation", bg: "from-purple-400/20 to-pink-400/20" },
+};
+
 interface MissionCardProps {
   mission: Mission;
   className?: string;
@@ -45,6 +52,7 @@ export const MissionCard = ({ mission, className }: MissionCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const difficulty = difficultyConfig[mission.difficulty];
   const category = categoryConfig[mission.category];
+  const impact = impactConfig[mission.impact || "personal"];
   const DifficultyIcon = difficulty.icon;
 
   const statusStyles = {
@@ -71,21 +79,30 @@ export const MissionCard = ({ mission, className }: MissionCardProps) => {
         className={cn(
           "overflow-hidden h-full",
           statusStyles[mission.status],
-          "transition-all duration-300"
+          "transition-all duration-300",
+          mission.impact === "global" && "border-t-2 border-t-purple-500"
         )}
         glow={isHovered}
       >
         <div className="p-6 h-full flex flex-col">
-          {/* Header */}
-          <div className="flex justify-between items-start mb-3">
-            <div className={cn("text-xs px-2 py-1 rounded-full", category.color)}>
-              {category.label}
-            </div>
-            <div className={cn("flex items-center gap-1 px-2 py-1 rounded-full", difficulty.bg)}>
-              <DifficultyIcon className={difficulty.color} size={12} />
-              <span className={cn("text-xs font-medium", difficulty.color)}>
-                {mission.difficulty.charAt(0).toUpperCase() + mission.difficulty.slice(1)}
-              </span>
+          {/* Header with hero mission styling */}
+          <div className="mb-3 relative">
+            {/* Background gradient based on impact */}
+            <div className={cn(
+              "absolute inset-0 rounded-lg -m-2 opacity-20 bg-gradient-to-r",
+              impact.bg
+            )}></div>
+            
+            <div className="flex justify-between items-start relative">
+              <div className={cn("text-xs px-2 py-1 rounded-full", category.color)}>
+                {category.label}
+              </div>
+              <div className={cn("flex items-center gap-1 px-2 py-1 rounded-full", difficulty.bg)}>
+                <DifficultyIcon className={difficulty.color} size={12} />
+                <span className={cn("text-xs font-medium", difficulty.color)}>
+                  {mission.difficulty.charAt(0).toUpperCase() + mission.difficulty.slice(1)}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -126,6 +143,15 @@ export const MissionCard = ({ mission, className }: MissionCardProps) => {
             >
               {statusButtons[mission.status].text}
             </Button>
+            
+            {/* Impact badge */}
+            {mission.impact === "global" && (
+              <div className="mt-3 flex justify-center">
+                <div className="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded-full">
+                  World-changing mission
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </GlassPanel>
