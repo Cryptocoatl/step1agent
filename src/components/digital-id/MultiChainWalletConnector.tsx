@@ -144,7 +144,6 @@ export const MultiChainWalletConnector = ({
                 ? "border-accent/40 shadow-md" 
                 : "hover:border-accent/20"
             )}
-            intensity="low"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">

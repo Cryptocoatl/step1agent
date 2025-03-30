@@ -6,7 +6,7 @@ import { CheckCircle, ChevronDown, ChevronUp, Shield, User, Globe, Star, Zap } f
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 
-interface DigitalIDCardProps extends React.HTMLAttributes<HTMLDivElement> {
+interface DigitalIDCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onDrag"> {
   expanded?: boolean;
 }
 
@@ -21,10 +21,10 @@ const DigitalIDCard = ({ className, expanded = false, ...props }: DigitalIDCardP
   return (
     <motion.div 
       className={cn("w-full max-w-md mx-auto", className)} 
-      {...props}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      {...props}
     >
       <GlassPanel
         className={cn(

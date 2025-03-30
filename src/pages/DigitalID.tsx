@@ -8,37 +8,15 @@ import { AnimatedCard } from "@/components/ui/AnimatedCard";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { StepOneAgent } from "@/components/agent/StepOneAgent";
-import { MultiChainWalletConnector } from "@/components/digital-id/MultiChainWalletConnector";
-import { CheckCircle, Shield, User, ArrowLeft, CheckCircle2, Globe, Key, Award } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { Shield, ArrowLeft } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { getBackendActor } from "@/services/icpService";
-
-const VerificationStep = ({ title, description, completed, active, onClick }: {
-  title: string;
-  description: string;
-  completed: boolean;
-  active: boolean;
-  onClick: () => void;
-}) => (
-  <div 
-    className={`p-4 border rounded-lg transition-all ${completed ? 'bg-accent/10 border-accent' : active ? 'bg-secondary/50 border-accent/50' : 'bg-secondary/30 border-border'}`}
-    onClick={onClick}
-  >
-    <div className="flex items-start">
-      <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${completed ? 'bg-accent text-white' : 'bg-secondary'}`}>
-        {completed ? <CheckCircle size={18} /> : <User size={18} />}
-      </div>
-      <div className="flex-1">
-        <h3 className="font-medium flex items-center">
-          {title}
-          {completed && <CheckCircle2 size={16} className="ml-2 text-green-500" />}
-        </h3>
-        <p className="text-sm text-muted-foreground mt-1">{description}</p>
-      </div>
-    </div>
-  </div>
-);
+import { VerificationSteps, Step } from "@/components/digital-id/VerificationSteps";
+import { ProgressTracker } from "@/components/digital-id/ProgressTracker";
+import { MultiChainSupportPanel } from "@/components/digital-id/MultiChainSupportPanel";
+import { WalletConnectorPanel } from "@/components/digital-id/WalletConnectorPanel";
+import { IdentityCredentialsPanel } from "@/components/digital-id/IdentityCredentialsPanel";
+import { BackgroundElements } from "@/components/digital-id/BackgroundElements";
 
 interface DigitalID {
   displayName: string;
@@ -55,7 +33,7 @@ const DigitalID = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [displayName, setDisplayName] = useState("");
   
-  const steps = [
+  const steps: Step[] = [
     {
       title: "Basic Identity Verification",
       description: "Set up your basic digital identity on ICP"
@@ -190,10 +168,7 @@ const DigitalID = () => {
       
       <div className="flex-1 relative">
         {/* Space background connectivity elements */}
-        <div className="absolute inset-0 -z-10 overflow-hidden">
-          <div className="absolute w-48 h-48 bg-accent/20 rounded-full blur-3xl top-10 left-20 animate-pulse-soft"></div>
-          <div className="absolute w-72 h-72 bg-blue-500/10 rounded-full blur-3xl bottom-20 right-10 animate-pulse-soft" style={{ animationDelay: "2s" }}></div>
-        </div>
+        <BackgroundElements />
         
         <div className="container mx-auto px-4 py-12 max-w-6xl">
           <div className="mb-8">
@@ -222,82 +197,21 @@ const DigitalID = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
             <div>
               <AnimatedCard animation="fade" className="mb-6">
-                <h2 className="text-xl font-semibold mb-4 flex items-center">
-                  <Key className="mr-2 h-5 w-5 text-accent" />
-                  Verification Progress
-                </h2>
-                <div className="mb-6">
-                  <div className="flex justify-between text-sm mb-2">
-                    <span>Progress</span>
-                    <span>{progress}% Complete</span>
-                  </div>
-                  <Progress value={progress} className="h-2" />
-                </div>
+                <ProgressTracker progress={progress} />
                 
-                <div className="space-y-3">
-                  {steps.map((step, index) => (
-                    <VerificationStep 
-                      key={index}
-                      title={step.title}
-                      description={step.description}
-                      completed={completedSteps.includes(index)}
-                      active={activeStep === index}
-                      onClick={() => setActiveStep(index)}
-                    />
-                  ))}
-                </div>
-                
-                <div className="mt-6">
-                  {activeStep === 0 && !completedSteps.includes(0) && (
-                    <>
-                      <div className="mb-4">
-                        <label className="text-sm text-muted-foreground block mb-2">Choose your display name</label>
-                        <input
-                          type="text"
-                          className="bg-secondary/50 w-full p-2 rounded-md border border-border"
-                          placeholder="Enter display name"
-                          value={displayName}
-                          onChange={(e) => setDisplayName(e.target.value)}
-                        />
-                      </div>
-                    </>
-                  )}
-                  
-                  <Button 
-                    onClick={() => completeStep(activeStep)}
-                    className="w-full button-animated bg-accent hover:bg-accent/90"
-                    disabled={completedSteps.includes(activeStep) || isLoading}
-                  >
-                    {isLoading ? "Processing..." : completedSteps.includes(activeStep) ? "Completed" : "Complete Current Step"}
-                  </Button>
-                </div>
+                <VerificationSteps 
+                  steps={steps}
+                  activeStep={activeStep}
+                  completedSteps={completedSteps}
+                  setActiveStep={setActiveStep}
+                  completeStep={completeStep}
+                  isLoading={isLoading}
+                  displayName={displayName}
+                  setDisplayName={setDisplayName}
+                />
               </AnimatedCard>
               
-              <GlassPanel className="p-5">
-                <div className="flex items-center mb-4">
-                  <Globe className="text-accent mr-3" size={24} />
-                  <h3 className="font-medium">Multi-Chain Support</h3>
-                </div>
-                
-                <p className="text-sm text-muted-foreground mb-4">
-                  Your STEP1 Digital ID connects across multiple blockchains including ICP, Ethereum, Solana, Bitcoin, and Holochain.
-                </p>
-                
-                <div className="bg-secondary/50 p-3 rounded-lg text-xs">
-                  <p className="flex items-center text-muted-foreground">
-                    <CheckCircle size={14} className="mr-2 text-green-500" />
-                    Unified identity across chains
-                  </p>
-                  <p className="flex items-center text-muted-foreground mt-2">
-                    <CheckCircle size={14} className="mr-2 text-green-500" />
-                    Soulbound NFT verification
-                  </p>
-                  <p className="flex items-center text-muted-foreground mt-2">
-                    <CheckCircle size={14} className="mr-2 text-green-500" />
-                    Reputation protocol integration
-                  </p>
-                </div>
-              </GlassPanel>
+              <MultiChainSupportPanel />
             </div>
             
             <div>
@@ -305,45 +219,22 @@ const DigitalID = () => {
               
               {activeStep === 1 && (
                 <div className="mt-6">
-                  <GlassPanel className="p-5">
-                    <h3 className="font-medium mb-3 flex items-center">
-                      <Award className="mr-2 h-5 w-5 text-accent" />
-                      Connect Multi-Chain Wallets
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Link your wallets from different blockchains to complete your Digital ID
-                    </p>
-                    <MultiChainWalletConnector onWalletConnected={(chain, address) => {
-                      toast({
-                        title: "Wallet Connected",
-                        description: `Your ${chain} wallet has been linked to your Digital ID`,
-                      });
+                  <WalletConnectorPanel 
+                    onWalletConnected={() => {
                       if (!completedSteps.includes(1)) {
                         completeStep(1);
                       }
-                    }} />
-                  </GlassPanel>
+                    }} 
+                  />
                 </div>
               )}
               
               <div className="mt-6 space-y-4">
-                <GlassPanel className="p-5">
-                  <h3 className="font-medium mb-3">Identity Credentials</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center p-3 bg-secondary/50 rounded-lg">
-                      <span className="text-sm">Verification Level</span>
-                      <span className="text-sm font-medium">{progress < 25 ? "Basic" : progress < 75 ? "Intermediate" : "Advanced"}</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-secondary/50 rounded-lg">
-                      <span className="text-sm">Connected Wallets</span>
-                      <span className="text-sm font-medium">{digitalID?.wallets?.length || (completedSteps.includes(1) ? '1' : '0')}</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-secondary/50 rounded-lg">
-                      <span className="text-sm">DAO Status</span>
-                      <span className="text-sm font-medium">{completedSteps.includes(3) ? 'Member' : 'Not Registered'}</span>
-                    </div>
-                  </div>
-                </GlassPanel>
+                <IdentityCredentialsPanel 
+                  progress={progress}
+                  digitalID={digitalID}
+                  completedSteps={completedSteps}
+                />
               </div>
             </div>
           </div>
