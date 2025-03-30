@@ -6,7 +6,7 @@ import { CheckCircle, ChevronDown, ChevronUp, Shield, User, Globe, Star, Zap } f
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 
-interface DigitalIDCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onDrag"> {
+interface DigitalIDCardProps extends React.HTMLAttributes<HTMLDivElement> {
   expanded?: boolean;
 }
 
