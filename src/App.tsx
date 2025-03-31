@@ -14,7 +14,15 @@ import Auth from "./pages/Auth";
 import Learn from "./pages/Learn";
 import { useEffect } from "react";
 
-const queryClient = new QueryClient();
+// Create queryClient outside of component to ensure it's only created once
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => {
   // Add dark class to enable space theme by default

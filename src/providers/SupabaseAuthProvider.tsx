@@ -26,9 +26,13 @@ export const SupabaseAuthProvider = ({ children }: { children: React.ReactNode }
   const navigate = useNavigate();
 
   useEffect(() => {
+    let mounted = true;
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
+        if (!mounted) return;
+        
         console.log('Auth state changed:', event);
         setSession(session);
         setUser(session?.user ?? null);
@@ -38,6 +42,7 @@ export const SupabaseAuthProvider = ({ children }: { children: React.ReactNode }
           
           // To avoid potential deadlock, defer fetching profile data with setTimeout
           setTimeout(async () => {
+            if (!mounted) return;
             try {
               // Check if user has a profile already
               const { data: profileData } = await supabase
@@ -86,6 +91,7 @@ export const SupabaseAuthProvider = ({ children }: { children: React.ReactNode }
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
@@ -95,6 +101,7 @@ export const SupabaseAuthProvider = ({ children }: { children: React.ReactNode }
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [navigate]);
