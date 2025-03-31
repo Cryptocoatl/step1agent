@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
-import { StepOneAgent } from "@/components/agent/StepOneAgent";
+import { StepOneAgentButton } from "@/components/agent/StepOneAgentButton";
 import { BackgroundElements } from "@/components/digital-id/BackgroundElements";
 import { useDigitalId } from "@/hooks/use-digital-id";
 import { AuthRequiredMessage } from "@/components/digital-id/AuthRequiredMessage";
@@ -15,7 +15,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
 const DigitalID = () => {
-  const [showAgent, setShowAgent] = useState(false);
   const [resendingEmail, setResendingEmail] = useState(false);
   const {
     user,
@@ -79,8 +78,7 @@ const DigitalID = () => {
         
         <div className="container mx-auto px-4 py-12 max-w-6xl">
           <DigitalIDHeader 
-            tokenBalance={tokenBalance} 
-            onShowAgent={() => setShowAgent(true)} 
+            tokenBalance={tokenBalance}
           />
           
           {user && !isEmailVerified ? (
@@ -131,7 +129,8 @@ const DigitalID = () => {
       
       <Footer />
       
-      {showAgent && <StepOneAgent />}
+      {/* Step One Agent Button */}
+      <StepOneAgentButton />
     </div>
   );
 };

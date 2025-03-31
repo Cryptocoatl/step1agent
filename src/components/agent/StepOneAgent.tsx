@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { cn } from "@/lib/utils";
-import { ArrowRight, Bot, ChevronDown, ChevronUp, Send } from "lucide-react";
+import { Bot, Send } from "lucide-react";
 import React, { useState } from "react";
 
 interface Message {
@@ -17,7 +17,6 @@ interface StepOneAgentProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const StepOneAgent = ({ className, fullscreen = false, ...props }: StepOneAgentProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -75,18 +74,12 @@ const StepOneAgent = ({ className, fullscreen = false, ...props }: StepOneAgentP
 
   return (
     <div className={cn(
-      "fixed z-40 transition-all duration-300 ease-in-out",
-      fullscreen ? "inset-0" : "right-6 bottom-6",
-      !isExpanded && !fullscreen && "w-[350px]",
-      isExpanded && !fullscreen && "w-[440px] h-[500px]",
-      fullscreen && "w-full h-full bg-background/90 backdrop-blur-sm",
+      "transition-all duration-300 ease-in-out",
+      fullscreen ? "inset-0" : "h-[500px]",
       className
     )} {...props}>
       <GlassPanel
-        className={cn(
-          "overflow-hidden transition-all duration-300 h-full",
-          fullscreen ? "w-full max-w-3xl mx-auto mt-16 mb-16" : "w-full"
-        )}
+        className="overflow-hidden transition-all duration-300 h-full w-full"
         intensity="medium"
       >
         {/* Header */}
@@ -100,14 +93,6 @@ const StepOneAgent = ({ className, fullscreen = false, ...props }: StepOneAgentP
               <p className="text-xs text-muted-foreground">Online</p>
             </div>
           </div>
-          {!fullscreen && (
-            <button 
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {isExpanded ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
-            </button>
-          )}
         </div>
 
         {/* Messages */}

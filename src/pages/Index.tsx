@@ -1,23 +1,21 @@
-
 import { BenefitsDisplay } from "@/components/benefits/BenefitsDisplay";
 import { DigitalIDCard } from "@/components/digital-id/DigitalIDCard";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
-import { StepOneAgent } from "@/components/agent/StepOneAgent";
+import { StepOneAgentButton } from "@/components/agent/StepOneAgentButton";
 import { AnimatedCard } from "@/components/ui/AnimatedCard";
 import { Button } from "@/components/ui/button";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { AnimatedLogo } from "@/components/ui/AnimatedLogo";
 import { SpaceBackground } from "@/components/ui/SpaceBackground";
 import { WalletConnect } from "@/components/wallet/WalletConnect";
-import { HeroMissionsSection } from "@/components/missions/HeroMissionsSection"; // Changed to named import
+import { HeroMissionsSection } from "@/components/missions/HeroMissionsSection";
 import HeroProfileStats from "@/components/profile/HeroProfileStats";
-import { ArrowRight, ChevronDown, Shield, Wallet } from "lucide-react";
+import { ArrowRight, ChevronDown, Shield, Wallet, Globe, Zap } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 
 const Index = () => {
-  const [showAgent, setShowAgent] = useState(true);
   const [selectedBenefitFilter, setSelectedBenefitFilter] = useState<"all" | "defi" | "events" | "ai">("all");
 
   // Animation variants for sections
@@ -108,19 +106,91 @@ const Index = () => {
           
           <div className="mt-20 text-center">
             <motion.a 
-              href="#features" 
+              href="#intro" 
               className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1, duration: 0.5 }}
               whileHover={{ y: 5 }}
             >
-              Explore Features
+              Explore STEP1
               <ChevronDown size={16} className="ml-1 animate-pulse-soft" />
             </motion.a>
           </div>
         </div>
       </section>
+
+      {/* Introduction Section */}
+      <motion.section 
+        id="intro" 
+        className="py-20 relative z-10"
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+      >
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="text-center mb-16">
+            <AnimatedCard 
+              animation="fade" 
+              className="inline-block bg-secondary/30 text-accent font-medium text-sm px-4 py-1 rounded-full mb-4 backdrop-blur-sm"
+            >
+              Welcome to STEP1
+            </AnimatedCard>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-6">Empowering Your Digital Journey</h2>
+            <p className="text-muted-foreground max-w-3xl mx-auto text-lg">
+              STEP1 is your gateway to a unified digital identity across multiple blockchains. 
+              We believe in a future where your digital presence is secure, portable, and entirely under your control.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+            <AnimatedCard animation="scale" delay={100} className="p-8 bg-white/5 backdrop-blur-md border border-white/10 text-center">
+              <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center text-accent mb-6 mx-auto">
+                <Shield size={28} />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Secure Identity</h3>
+              <p className="text-muted-foreground">
+                Built on the Internet Computer Protocol, your digital identity is cryptographically secure and entirely owned by you.
+              </p>
+            </AnimatedCard>
+            
+            <AnimatedCard animation="scale" delay={200} className="p-8 bg-white/5 backdrop-blur-md border border-white/10 text-center">
+              <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center text-accent mb-6 mx-auto">
+                <Globe size={28} />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Multi-Chain Ecosystem</h3>
+              <p className="text-muted-foreground">
+                Seamlessly connect and manage your assets across ICP, Ethereum, Solana, Bitcoin, and more from a single interface.
+              </p>
+            </AnimatedCard>
+            
+            <AnimatedCard animation="scale" delay={300} className="p-8 bg-white/5 backdrop-blur-md border border-white/10 text-center">
+              <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center text-accent mb-6 mx-auto">
+                <Zap size={28} />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Unlock Benefits</h3>
+              <p className="text-muted-foreground">
+                Your STEP1 ID opens doors to exclusive events, premium DeFi opportunities, and next-generation AI services.
+              </p>
+            </AnimatedCard>
+          </div>
+          
+          <div className="mt-16 text-center">
+            <GlassPanel className="p-8 max-w-3xl mx-auto">
+              <h3 className="text-2xl font-bold mb-4">Our Vision</h3>
+              <p className="text-lg mb-6">
+                We're building a future where digital identity transcends platforms and blockchains. 
+                STEP1 is more than a product—it's a movement toward true digital sovereignty.
+              </p>
+              <Button className="px-6 button-animated bg-accent hover:bg-accent/90 group">
+                Join Our Mission
+                <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+              </Button>
+            </GlassPanel>
+          </div>
+        </div>
+      </motion.section>
 
       {/* Hero Profile Stats Section */}
       <motion.section 
@@ -328,8 +398,8 @@ const Index = () => {
 
       <Footer />
 
-      {/* Step One Agent (fixed position) */}
-      {showAgent && <StepOneAgent />}
+      {/* Step One Agent Button (fixed position) */}
+      <StepOneAgentButton />
     </div>
   );
 };
