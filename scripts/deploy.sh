@@ -7,6 +7,6 @@ npm run build
 
 # Deploy to ICP
 echo "Deploying to ICP..."
-dfx deploy
+dfx deploy --yes
 
 echo "Deployment completed!"

@@ -1,4 +1,5 @@
 import { defineConfig, loadEnv } from "vite";
+import type { Plugin } from 'vite';
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
@@ -9,75 +10,82 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   
   return {
-  server: {
-    host: "::", // Keep this to listen on all available IPs
-    port: 5174, // Explicitly set to default Vite port for clarity
-    // host: true, // Remove duplicate host property
-  },
-  envPrefix: 'VITE_',
-  plugins: [
-    react(),
-    mode === 'development' &&
-    componentTagger(),
-  ].filter(Boolean),
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+    server: {
+      host: "::",
+      port: 5174,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,OPTIONS"
+      }
     },
-  },
-  build: {
-    outDir: "dist",
-    emptyOutDir: true,
-    sourcemap: true,
-    // Ensure assets are included properly for ICP
-    assetsInlineLimit: 0,
-    // Configure chunking strategy
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-components': [
-            '@/components/ui/button',
-            '@/components/ui/dialog',
-            '@/components/ui/form',
-            '@/components/ui/input',
-            '@/components/ui/toast',
-          ],
-          'wallet-adapter': [
-            '@/services/icpService',
-            '@/components/wallet/WalletConnect'
-          ],
-          'pages': [
-            '@/pages/Index',
-            '@/pages/DigitalID',
-            '@/pages/WalletDashboard',
-            '@/pages/DAOGovernance'
-          ]
-        },
+    envPrefix: 'VITE_',
+    plugins: [
+      react(),
+      mode === 'development' && componentTagger(),
+    ].filter(Boolean),
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
       },
     },
-    // Increase warning limit since we're manually chunking
-    chunkSizeWarningLimit: 1000,
-  },
-  // Add base path for ICP canister URLs when in production
-  base: mode === 'production' ? './' : '/',
-  optimizeDeps: {
-    include: [
-      '@dfinity/auth-client',
-      '@dfinity/agent',
-      '@dfinity/candid',
-      '@dfinity/principal',
-      '@dfinity/identity'
-    ],
-    esbuildOptions: {
-      target: 'esnext'
+    build: {
+      outDir: "dist",
+      emptyOutDir: true,
+      sourcemap: true,
+      assetsInlineLimit: 0,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            'ui-components': [
+              '@/components/ui/button',
+              '@/components/ui/dialog',
+              '@/components/ui/form',
+              '@/components/ui/input',
+              '@/components/ui/toast',
+            ],
+            'wallet-adapter': [
+              '@/services/icpService',
+              '@/components/wallet/WalletConnect'
+            ],
+            'pages': [
+              '@/pages/Home.tsx',
+              '@/pages/DigitalID.tsx',
+              '@/pages/WalletDashboard.tsx',
+              '@/pages/DAOGovernance.tsx'
+            ]
+          },
+        },
+      },
+      chunkSizeWarningLimit: 1000,
+    },
+    // Updated base URL configuration for ICP deployment
+    base: mode === 'production' ? `https://${env.VITE_CANISTER_ID_FRONTEND}.ic0.app` : '/',
+    optimizeDeps: {
+      include: [
+        '@dfinity/auth-client',
+        '@dfinity/agent',
+        '@dfinity/candid',
+        '@dfinity/principal',
+        '@dfinity/identity'
+      ],
+      esbuildOptions: {
+        target: 'esnext',
+        define: {
+          global: 'globalThis',
+          'process.env': JSON.stringify({})
+        }
+      }
+    },
+    define: {
+      'process.env.VITE_DFX_NETWORK': JSON.stringify(env.VITE_DFX_NETWORK),
+      'process.env.VITE_CANISTER_ID_FRONTEND': JSON.stringify(env.VITE_CANISTER_ID_FRONTEND),
+      'process.env.VITE_CANISTER_ID_BACKEND': JSON.stringify(env.VITE_CANISTER_ID_BACKEND),
+      'process.env.VITE_CANISTER_ID_DIGITAL_IDENTITY_MANAGER': JSON.stringify(env.VITE_CANISTER_ID_DIGITAL_IDENTITY_MANAGER),
+      'process.env.VITE_CANISTER_ID_DAO_ENGINE': JSON.stringify(env.VITE_CANISTER_ID_DAO_ENGINE),
+      'process.env.VITE_CANISTER_ID_CROSS_CHAIN_WALLET_ADAPTER': JSON.stringify(env.VITE_CANISTER_ID_CROSS_CHAIN_WALLET_ADAPTER),
+      'process.env.VITE_CANISTER_ID_LAUNCHPAD_FACTORY': JSON.stringify(env.VITE_CANISTER_ID_LAUNCHPAD_FACTORY),
+      'process.env.VITE_CANISTER_ID_AI_AGENT_ORCHESTRATOR': JSON.stringify(env.VITE_CANISTER_ID_AI_AGENT_ORCHESTRATOR),
     }
-  },
-  // Add a polyfill for process
-  define: {
-    'process.env.VITE_DFX_NETWORK': JSON.stringify(env.VITE_DFX_NETWORK),
-    'process.env.VITE_CANISTER_ID_FRONTEND': JSON.stringify(env.VITE_CANISTER_ID_FRONTEND),
-    'process.env.VITE_CANISTER_ID_BACKEND': JSON.stringify(env.VITE_CANISTER_ID_BACKEND),
-  }
   };
 });

@@ -1,12 +1,14 @@
 
 import { cn } from "@/lib/utils";
-import React, { useState } from "react";
+import * as React from "react";
+import { useState } from "react";
 
 interface AnimatedCardProps extends React.HTMLAttributes<HTMLDivElement> {
   delay?: number;
   animation?: "fade" | "slide" | "scale" | "blur";
   hover?: boolean;
   children: React.ReactNode;
+  className?: string;
 }
 
 const AnimatedCard = ({

@@ -1,6 +1,6 @@
 import { Actor, HttpAgent, Identity } from '@dfinity/agent';
 import { AuthClient } from '@dfinity/auth-client';
-import type { _SERVICE, DigitalID } from '../declarations/backend/backend.did';
+import type { _SERVICE } from '../declarations/backend/backend.did';
 import { createActor as backendCreateActor } from '../declarations/backend';
 import { LOCAL_CANISTERS, HOST } from '../config/canister.config';
 
@@ -23,15 +23,6 @@ debug('Environment:', {
   frontendCanister: import.meta.env.VITE_CANISTER_ID_FRONTEND,
   identityProvider: AUTH_CONFIG.identityProvider
 });
-
-// Ensure TypeScript recognizes the env variables
-declare global {
-  interface ImportMetaEnv {
-    VITE_DFX_NETWORK: string
-    VITE_CANISTER_ID_FRONTEND: string
-    VITE_CANISTER_ID_BACKEND: string
-  }
-}
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -80,7 +71,7 @@ export const createActor = async (identity?: Identity): Promise<_SERVICE> => {
   // Verify the actor works by calling a simple query method
   try {
     const heartbeat = await actor.heartbeat();
-    console.log('Actor initialized successfully:', heartbeat);
+    debug('Actor initialized successfully:', heartbeat);
   } catch (error) {
     console.error('Failed to initialize actor:', error);
     throw error;
@@ -168,3 +159,17 @@ export const logout = async (): Promise<void> => {
 export const getAuthState = (): AuthState => {
   return { ...authState };
 };
+
+// Admin verification methods
+export const verifyAdmin = (): boolean => {
+  if (!authState.principal) return false;
+  const adminId = import.meta.env.VITE_ADMIN_ICP_ID;
+  return authState.principal === adminId;
+};
+
+export const getAdminId = (): string | null => {
+  return import.meta.env.VITE_ADMIN_ICP_ID || null;
+};
+
+// Re-export the ICP wallet service from the new location
+export * from './icp/icpWalletService';
