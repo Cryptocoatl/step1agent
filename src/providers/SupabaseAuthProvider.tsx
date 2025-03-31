@@ -36,22 +36,29 @@ export const SupabaseAuthProvider = ({ children }: { children: React.ReactNode }
         if (session?.user) {
           setIsEmailVerified(session.user.email_confirmed_at != null);
           
-          // Check if user has a profile already
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-            
-          // If new sign-up and email is verified, redirect to digital-id
-          if (event === 'SIGNED_IN' && session.user.email_confirmed_at) {
-            // If this is a new user that just confirmed email
-            toast({
-              title: "Email verified successfully",
-              description: "Your STEP1 Digital ID is being set up",
-            });
-            navigate('/digital-id');
-          }
+          // To avoid potential deadlock, defer fetching profile data with setTimeout
+          setTimeout(async () => {
+            try {
+              // Check if user has a profile already
+              const { data: profileData } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+                
+              // If new sign-up and email is verified, redirect to digital-id
+              if (event === 'SIGNED_IN' && session.user.email_confirmed_at) {
+                // If this is a new user that just confirmed email
+                toast({
+                  title: "Email verified successfully",
+                  description: "Your STEP1 Digital ID is being set up",
+                });
+                navigate('/digital-id');
+              }
+            } catch (error) {
+              console.error("Error fetching profile data:", error);
+            }
+          }, 0);
         }
         
         if (event === 'SIGNED_IN') {
