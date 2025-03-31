@@ -9,13 +9,15 @@ import { AnimatedCard } from "@/components/ui/AnimatedCard";
 import { SpaceBackground } from "@/components/ui/SpaceBackground";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Navigate, Link, useLocation } from "react-router-dom";
+import { Navigate, Link, useLocation, useNavigate } from "react-router-dom";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Mail, Key, LogIn, UserPlus, Lock, CheckCircle2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { resendVerificationEmail } from "@/services/authService";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -41,20 +43,30 @@ const Auth = () => {
   const [showReset, setShowReset] = useState(false);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [verificationEmail, setVerificationEmail] = useState("");
+  const [isVerified, setIsVerified] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Check for verification success from URL parameter
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const verified = params.get('verified');
     
-    if (verified === 'true' && user) {
+    if (verified === 'true') {
+      setIsVerified(true);
       toast({
         title: "Email verified successfully",
         description: "You can now access all STEP1 features",
       });
+      
+      // Redirect to digital ID after a short delay
+      if (user) {
+        setTimeout(() => {
+          navigate('/digital-id');
+        }, 1500);
+      }
     }
-  }, [location, user]);
+  }, [location, user, navigate]);
 
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -107,8 +119,18 @@ const Auth = () => {
     }
   };
 
-  // Redirect if user is already logged in
-  if (user) {
+  const handleResendVerification = async () => {
+    if (!verificationEmail) return;
+    
+    try {
+      await resendVerificationEmail(verificationEmail);
+    } catch (error) {
+      console.error("Failed to resend verification:", error);
+    }
+  };
+
+  // Redirect if user is already logged in and we're not in the verification success state
+  if (user && !isVerified) {
     return <Navigate to="/digital-id" replace />;
   }
 
@@ -128,6 +150,16 @@ const Auth = () => {
                 </p>
               </div>
               
+              {isVerified && user && (
+                <Alert className="mb-8 border-green-500/50 bg-green-500/10">
+                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  <AlertTitle>Email Verified Successfully!</AlertTitle>
+                  <AlertDescription>
+                    Your email has been verified. Redirecting you to set up your Digital ID...
+                  </AlertDescription>
+                </Alert>
+              )}
+              
               <GlassPanel className="p-6">
                 {emailVerificationSent ? (
                   <div className="text-center py-6">
@@ -141,7 +173,11 @@ const Auth = () => {
                     </p>
                     <div className="space-y-4">
                       <Button 
-                        onClick={() => loginForm.setValue('email', verificationEmail)}
+                        onClick={() => {
+                          setEmailVerificationSent(false);
+                          setActiveTab("login"); 
+                          loginForm.setValue('email', verificationEmail);
+                        }}
                         variant="outline" 
                         className="w-full"
                       >
@@ -152,12 +188,9 @@ const Auth = () => {
                         <Button 
                           variant="link" 
                           className="p-0 h-auto text-sm"
-                          onClick={() => {
-                            setEmailVerificationSent(false);
-                            setActiveTab("signup");
-                          }}
+                          onClick={handleResendVerification}
                         >
-                          try again
+                          click here to resend
                         </Button>
                       </p>
                     </div>

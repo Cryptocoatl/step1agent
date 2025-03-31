@@ -88,3 +88,33 @@ export async function resetPassword(email: string) {
     throw error;
   }
 }
+
+export async function resendVerificationEmail(email: string) {
+  try {
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth?verified=true`
+      }
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    toast({
+      title: "Verification email sent",
+      description: `A new verification email has been sent to ${email}`
+    });
+    
+    return true;
+  } catch (error: any) {
+    toast({
+      title: "Failed to send verification email",
+      description: error.message,
+      variant: "destructive"
+    });
+    throw error;
+  }
+}

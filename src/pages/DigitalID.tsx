@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
@@ -10,8 +11,8 @@ import { DigitalIDContent } from "@/components/digital-id/DigitalIDContent";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Mail, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { resendVerificationEmail } from "@/services/authService";
 
 const DigitalID = () => {
   const [resendingEmail, setResendingEmail] = useState(false);
@@ -37,26 +38,9 @@ const DigitalID = () => {
     
     try {
       setResendingEmail(true);
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: user.email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth?verified=true`
-        }
-      });
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Verification email sent",
-        description: `We've sent a new verification email to ${user.email}`
-      });
-    } catch (error: any) {
-      toast({
-        title: "Failed to send verification email",
-        description: error.message,
-        variant: "destructive"
-      });
+      await resendVerificationEmail(user.email);
+    } catch (error) {
+      console.error("Failed to resend verification:", error);
     } finally {
       setResendingEmail(false);
     }

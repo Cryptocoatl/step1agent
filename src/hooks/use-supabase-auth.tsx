@@ -41,11 +41,13 @@ export function useSupabaseAuth() {
               // If new sign-up and email is verified, redirect to digital-id
               if (event === 'SIGNED_IN' && session.user.email_confirmed_at) {
                 // If this is a new user that just confirmed email
-                toast({
-                  title: "Email verified successfully",
-                  description: "Your STEP1 Digital ID is being set up",
-                });
-                navigate('/digital-id');
+                if (!profileData?.display_name) {
+                  toast({
+                    title: "Email verified successfully",
+                    description: "Your STEP1 Digital ID is being set up",
+                  });
+                  navigate('/digital-id');
+                }
               }
             } catch (error) {
               console.error("Error fetching profile data:", error);
