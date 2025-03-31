@@ -79,6 +79,7 @@ const DigitalID = () => {
         <div className="container mx-auto px-4 py-12 max-w-6xl">
           <DigitalIDHeader 
             tokenBalance={tokenBalance}
+            onShowAgent={() => {}}  {/* Add empty handler to fix the build error */}
           />
           
           {user && !isEmailVerified ? (

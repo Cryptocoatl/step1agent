@@ -1,11 +1,11 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Shield } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 interface DigitalIDHeaderProps {
   tokenBalance: number;
-  onShowAgent: () => void;
+  onShowAgent?: () => void;  // Make this prop optional
 }
 
 export const DigitalIDHeader = ({ tokenBalance, onShowAgent }: DigitalIDHeaderProps) => {
@@ -28,14 +28,6 @@ export const DigitalIDHeader = ({ tokenBalance, onShowAgent }: DigitalIDHeaderPr
               <span className="font-medium">{tokenBalance} STEP1</span> Tokens
             </div>
           )}
-          <Button 
-            onClick={onShowAgent}
-            variant="outline"
-            className="button-animated"
-          >
-            <Shield className="mr-2 h-4 w-4" />
-            AI Guardian
-          </Button>
         </div>
       </div>
     </div>

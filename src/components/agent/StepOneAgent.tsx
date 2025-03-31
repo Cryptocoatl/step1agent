@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { cn } from "@/lib/utils";
 import { Bot, Send } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface Message {
   id: string;
@@ -16,17 +16,31 @@ interface StepOneAgentProps extends React.HTMLAttributes<HTMLDivElement> {
   fullscreen?: boolean;
 }
 
+// Create a singleton messages array to persist messages between component mounts
+let globalMessages: Message[] = [
+  {
+    id: "welcome",
+    content: "Hello! I'm your Step 1 Agent. I can help you set up your digital identity and connect your wallets. How can I assist you today?",
+    sender: "agent",
+    timestamp: new Date(),
+  },
+];
+
 const StepOneAgent = ({ className, fullscreen = false, ...props }: StepOneAgentProps) => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome",
-      content: "Hello! I'm your Step 1 Agent. I can help you set up your digital identity and connect your wallets. How can I assist you today?",
-      sender: "agent",
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>(globalMessages);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+
+  // Update the global messages when local messages change
+  useEffect(() => {
+    globalMessages = messages;
+  }, [messages]);
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isTyping]);
 
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
@@ -135,6 +149,7 @@ const StepOneAgent = ({ className, fullscreen = false, ...props }: StepOneAgentP
                 </div>
               </div>
             )}
+            <div ref={messagesEndRef} />
           </div>
         </div>
 
