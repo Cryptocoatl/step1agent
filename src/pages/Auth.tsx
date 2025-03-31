@@ -18,6 +18,7 @@ import { AlertCircle, Mail, Key, LogIn, UserPlus, Lock, CheckCircle2 } from "luc
 import { toast } from "@/hooks/use-toast";
 import { resendVerificationEmail } from "@/services/authService";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { supabase } from "@/integrations/supabase/client";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -44,15 +45,64 @@ const Auth = () => {
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [verificationEmail, setVerificationEmail] = useState("");
   const [isVerified, setIsVerified] = useState(false);
+  const [isProcessingAuth, setIsProcessingAuth] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Handle access token from URL hash
+  useEffect(() => {
+    const handleTokenFromHash = async () => {
+      const hash = window.location.hash;
+      
+      if (hash && hash.includes("access_token")) {
+        setIsProcessingAuth(true);
+        
+        // Extract tokens from hash
+        const hashParams = new URLSearchParams(hash.substring(1));
+        const accessToken = hashParams.get("access_token");
+        const refreshToken = hashParams.get("refresh_token");
+        
+        if (accessToken && refreshToken) {
+          try {
+            // Set the session with the tokens from URL
+            const { error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken
+            });
+
+            if (error) throw error;
+            
+            // Clear the hash from URL to avoid token exposure
+            window.history.replaceState({}, document.title, window.location.pathname + "?verified=true");
+            
+            setIsVerified(true);
+            toast({
+              title: "Email verified successfully",
+              description: "You can now access all STEP1 features",
+            });
+          } catch (error: any) {
+            console.error("Error setting session:", error);
+            toast({
+              title: "Verification failed",
+              description: error.message,
+              variant: "destructive"
+            });
+          } finally {
+            setIsProcessingAuth(false);
+          }
+        }
+      }
+    };
+
+    handleTokenFromHash();
+  }, []);
 
   // Check for verification success from URL parameter
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const verified = params.get('verified');
     
-    if (verified === 'true') {
+    if (verified === 'true' && !isProcessingAuth) {
       setIsVerified(true);
       toast({
         title: "Email verified successfully",
@@ -66,7 +116,7 @@ const Auth = () => {
         }, 1500);
       }
     }
-  }, [location, user, navigate]);
+  }, [location, user, navigate, isProcessingAuth]);
 
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -130,7 +180,7 @@ const Auth = () => {
   };
 
   // Redirect if user is already logged in and we're not in the verification success state
-  if (user && !isVerified) {
+  if (user && !isVerified && !isProcessingAuth) {
     return <Navigate to="/digital-id" replace />;
   }
 
@@ -149,6 +199,16 @@ const Auth = () => {
                   Your journey into the future of digital identity begins here
                 </p>
               </div>
+              
+              {isProcessingAuth && (
+                <Alert className="mb-8 bg-primary/10 border-primary/30">
+                  <AlertCircle className="h-5 w-5 text-primary" />
+                  <AlertTitle>Processing verification</AlertTitle>
+                  <AlertDescription>
+                    Please wait while we verify your email...
+                  </AlertDescription>
+                </Alert>
+              )}
               
               {isVerified && user && (
                 <Alert className="mb-8 border-green-500/50 bg-green-500/10">

@@ -2,7 +2,7 @@
 import { createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { useSupabaseAuth } from '@/hooks/use-supabase-auth';
-import { signIn, signOut, signUp, resetPassword } from '@/services/authService';
+import { signIn, signOut, signUp, resetPassword, resendVerificationEmail } from '@/services/authService';
 
 interface AuthContextType {
   user: User | null;
@@ -12,6 +12,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, metadata?: any) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  resendVerificationEmail: (email: string) => Promise<boolean>;
   isEmailVerified: boolean;
 }
 
@@ -30,6 +31,7 @@ export const SupabaseAuthProvider = ({ children }: { children: React.ReactNode }
     signUp,
     signOut,
     resetPassword,
+    resendVerificationEmail,
     isEmailVerified
   };
 

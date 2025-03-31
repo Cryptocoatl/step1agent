@@ -21,12 +21,15 @@ export async function signIn(email: string, password: string) {
 
 export async function signUp(email: string, password: string, metadata?: any) {
   try {
+    // Get the current URL origin
+    const redirectUrl = `${window.location.origin}/auth?verified=true`;
+    
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: { 
         data: metadata,
-        emailRedirectTo: `${window.location.origin}/auth?verified=true` 
+        emailRedirectTo: redirectUrl
       }
     });
     
