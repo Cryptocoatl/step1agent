@@ -1,54 +1,39 @@
 
-import { WalletType } from "@/services/icpWalletService";
-
-export interface WalletConfig {
-  id: WalletType;
+export interface WalletOption {
+  id: string;
   name: string;
   icon: string;
   description: string;
   color: string;
-  url: string;
 }
 
-export const walletOptions: WalletConfig[] = [
+export const walletOptions: WalletOption[] = [
   {
-    id: "plug" as WalletType,
-    name: "Plug Wallet",
-    icon: "🔌",
-    description: "The most popular ICP browser wallet extension",
-    color: "from-purple-500 to-indigo-600",
-    url: "https://plugwallet.ooo/"
+    id: "solana",
+    name: "Solana",
+    icon: "SOL",
+    description: "Connect to Solana DeFi ecosystem",
+    color: "from-green-400 to-teal-500",
   },
   {
-    id: "stoic" as WalletType,
-    name: "Stoic Wallet",
-    icon: "🧠",
-    description: "Web-based ICP wallet, no extension needed",
-    color: "from-blue-500 to-sky-600",
-    url: "https://www.stoicwallet.com/"
+    id: "ethereum",
+    name: "Ethereum",
+    icon: "ETH",
+    description: "Connect to EVM compatible networks",
+    color: "from-blue-400 to-indigo-500",
   },
   {
-    id: "bitfinity" as WalletType,
-    name: "Bitfinity Wallet",
-    icon: "∞",
-    description: "Multi-chain ICP compatible wallet",
-    color: "from-pink-500 to-rose-600",
-    url: "https://bitfinity.network/"
+    id: "bitcoin",
+    name: "Bitcoin",
+    icon: "BTC",
+    description: "Connect your Bitcoin wallet",
+    color: "from-orange-400 to-amber-500",
   },
   {
-    id: "infinity" as WalletType,
-    name: "Infinity Wallet",
-    icon: "♾️",
-    description: "DeFi focused ICP wallet",
+    id: "holochain",
+    name: "Holochain",
+    icon: "HOT",
+    description: "Connect your Holochain identity",
     color: "from-green-500 to-emerald-600",
-    url: "https://wallet.infinityswap.one/"
   },
-  {
-    id: "nfid" as WalletType,
-    name: "NFID",
-    icon: "🔑",
-    description: "Internet Identity based authentication",
-    color: "from-amber-500 to-yellow-600",
-    url: "https://nfid.one/"
-  }
 ];
