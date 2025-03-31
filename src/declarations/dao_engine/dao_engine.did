@@ -1,0 +1,31 @@
+type Vote = 
+ record {
+   vote: bool;
+   voter: principal;
+ };
+type ProposalType = 
+ variant {
+   Docs: record {docHash: text;};
+   Funding: record {
+              amount: nat;
+              recipient: principal;
+              token: text;
+            };
+   Role: record {
+           member: principal;
+           roleName: text;
+         };
+ };
+type Proposal = 
+ record {
+   creator: principal;
+   description: text;
+   id: nat;
+   proposalType: ProposalType;
+   votes: vec Vote;
+ };
+service : {
+  createProposal: (text, ProposalType) -> (nat);
+  getProposal: (nat) -> (opt Proposal);
+  vote: (nat, bool) -> ();
+}

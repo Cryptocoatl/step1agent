@@ -1,0 +1,16 @@
+type Wallet = 
+ record {
+   address: text;
+   chain: text;
+ };
+type UserProfile = 
+ record {
+   "principal": principal;
+   reputation: float64;
+   wallets: vec Wallet;
+ };
+service : {
+  createProfile: () -> (UserProfile);
+  getProfile: (principal) -> (opt UserProfile);
+  updateReputation: (principal, float64) -> ();
+}

@@ -1,6 +1,6 @@
 
 import { BenefitsDisplay } from "@/components/benefits/BenefitsDisplay";
-import { DigitalIDCard } from "@/components/digital-id/DigitalIDCard";
+import DigitalIDCard from "@/components/digital-id/DigitalIDCard"; // Corrected default import
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { StepOneAgent } from "@/components/agent/StepOneAgent";

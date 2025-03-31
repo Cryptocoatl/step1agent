@@ -1,0 +1,12 @@
+type AIAgent = 
+ record {
+   executionEnv: text;
+   id: principal;
+   modelHash: text;
+   role: text;
+ };
+service : {
+  getAgent: (principal) -> (opt AIAgent);
+  registerAgent: (AIAgent) -> (principal);
+  upgradeAgent: (principal, blob) -> (bool);
+}

@@ -1,19 +1,16 @@
-
 export const idlFactory = ({ IDL }) => {
   const DigitalID = IDL.Record({
-    'createdAt' : IDL.Int,
     'displayName' : IDL.Text,
-    'daoMemberships' : IDL.Vec(IDL.Text),
+    'createdAt' : IDL.Int,
     'wallets' : IDL.Vec(IDL.Text),
+    'daoMemberships' : IDL.Vec(IDL.Text),
   });
   return IDL.Service({
-    'getDigitalID' : IDL.Func(
-        [],
-        [IDL.Opt(DigitalID)],
-        ['query'],
-      ),
+    'getDigitalID' : IDL.Func([], [IDL.Opt(DigitalID)], []),
+    'getTimestamp' : IDL.Func([], [IDL.Int], []),
     'heartbeat' : IDL.Func([], [IDL.Text], ['query']),
     'linkWallet' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
+    'ping' : IDL.Func([], [IDL.Text], []),
     'registerDigitalID' : IDL.Func([IDL.Text], [IDL.Bool], []),
   });
 };

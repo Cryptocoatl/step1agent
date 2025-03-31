@@ -22,3 +22,16 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# DFINITY
+.dfx/
+
+# Environment variables
+.env*
+!.env.example
+
+# Backup files
+*.bak
+
+# Temporary build files
+*.timestamp-*.*

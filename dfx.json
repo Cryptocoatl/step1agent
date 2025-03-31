@@ -11,11 +11,30 @@
     "backend": {
       "main": "src/backend/main.mo",
       "type": "motoko"
+    },
+    "digital_identity_manager": {
+      "main": "src/digital_identity_manager/main.mo",
+      "type": "motoko"
+    },
+    "dao_engine": {
+      "main": "src/dao_engine/main.mo",
+      "type": "motoko"
+    },
+    "cross_chain_wallet_adapter": {
+      "main": "src/cross_chain_wallet_adapter/main.mo",
+      "type": "motoko"
+    },
+    "launchpad_factory": {
+      "main": "src/launchpad_factory/main.mo",
+      "type": "motoko"
+    },
+    "ai_agent_orchestrator": {
+      "main": "src/ai_agent_orchestrator/main.mo",
+      "type": "motoko"
     }
   },
   "defaults": {
     "build": {
-      "args": "",
       "packtool": ""
     }
   },

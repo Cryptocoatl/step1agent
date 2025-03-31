@@ -1,0 +1,26 @@
+type Wallet = 
+ record {
+   chain: ChainType;
+   signer: UnifiedSigner;
+ };
+type UnifiedSigner = 
+ record {
+   getAddress: func (text) -> (text);
+   signMessage: func (blob) -> (opt blob);
+   verifyNetwork: func (nat) -> (bool);
+ };
+type ChainType = 
+ variant {
+   Bitcoin;
+   Ethereum;
+   ICP;
+   Solana;
+ };
+service : {
+  connectWallet: (ChainType, blob) -> (opt Wallet);
+  getWallet: () -> (opt Wallet);
+  helperGetAddress: (text) -> (text);
+  helperSignMessage: (blob) -> (opt blob);
+  helperVerifyNetwork: (nat) -> (bool);
+  signMessage: (blob) -> (opt blob);
+}

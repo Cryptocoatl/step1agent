@@ -1,8 +1,13 @@
-
 import { Button } from "@/components/ui/button";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { cn } from "@/lib/utils";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { login, logout, initAuth, getAuthState } from "@/services/icpService";
+import { connectCrossChainWallet } from "@/services/crossChainService"; // Import the new service
+import type { ChainType } from '@/declarations/cross_chain_wallet_adapter/cross_chain_wallet_adapter.did.d'; // Import ChainType
+
+// Define the specific type for cross-chain wallets handled here
+type HandledCrossChainType = 'Solana' | 'Ethereum' | 'Bitcoin';
 
 interface WalletOption {
   id: string;
@@ -56,21 +61,88 @@ const WalletConnect = ({ className, ...props }: WalletConnectProps) => {
   const [connectedWallets, setConnectedWallets] = useState<string[]>([]);
   const [connectingWallet, setConnectingWallet] = useState<string | null>(null);
 
-  const handleConnect = (walletId: string) => {
+  useEffect(() => {
+    // Initialize authentication on component mount
+    initAuth().then(() => {
+      const { isAuthenticated } = getAuthState();
+      if (isAuthenticated) {
+        setConnectedWallets(prev => 
+          prev.includes("icp") ? prev : [...prev, "icp"]
+        );
+      }
+    });
+  }, []);
+
+  const handleConnect = async (walletId: string) => {
     setConnectingWallet(walletId);
     
-    // Simulate connection process
-    setTimeout(() => {
-      setConnectedWallets((prev) => 
-        prev.includes(walletId) ? prev : [...prev, walletId]
-      );
-      setConnectingWallet(null);
-    }, 1500);
-  };
+    try {
+      if (walletId === "icp") {
+        const success = await login();
+        if (success) {
+          setConnectedWallets(prev => 
+            prev.includes(walletId) ? prev : [...prev, walletId]
+          );
+        }
+      } else if (walletId === "solana" || walletId === "ethereum" || walletId === "bitcoin") {
+        let chain: HandledCrossChainType; // Use the explicitly defined type
+        // Use switch for clearer type mapping
+        switch (walletId) {
+          case 'solana':
+            chain = 'Solana';
+            break;
+          case 'ethereum':
+            chain = 'Ethereum';
+            break;
+          case 'bitcoin':
+            chain = 'Bitcoin';
+            break;
+          default:
+            // This path should not be reachable due to the outer if condition
+            console.error(`Unexpected walletId in cross-chain block: ${walletId}`);
+            setConnectingWallet(null); // Ensure loading state is reset
+            return; // Exit if unexpected id somehow gets here
+        }
 
-  const handleDisconnect = (walletId: string) => {
-    setConnectedWallets((prev) => prev.filter((id) => id !== walletId));
-  };
+        // Now 'chain' is correctly typed as 'Solana' | 'Ethereum' | 'Bitcoin'
+        const walletInfo = await connectCrossChainWallet(chain);
+        if (walletInfo) {
+          console.log(`${chain} wallet connected:`, walletInfo);
+          setConnectedWallets(prev => 
+            prev.includes(walletId) ? prev : [...prev, walletId]
+          );
+        } else {
+          console.error(`Failed to connect ${chain} wallet via service.`);
+          // Optionally show an error message to the user
+        }
+      } else if (walletId === "holochain") { // Correctly placed else if
+          console.warn("Holochain connection not yet implemented in the backend canister.");
+          // Optionally disable the button or show a message
+      } else {
+        console.warn(`Connection logic for ${walletId} not implemented.`);
+      }
+    } catch (error) {
+      console.error(`Failed to connect ${walletId} wallet:`, error);
+    } finally {
+      setConnectingWallet(null);
+    }
+  }; // End of handleConnect
+
+  const handleDisconnect = async (walletId: string) => {
+    if (walletId === "icp") {
+      try {
+        await logout();
+        // Update state immediately after logout call for ICP
+        setConnectedWallets(prev => prev.filter(id => id !== walletId));
+      } catch (error) {
+        console.error("Failed to disconnect ICP wallet:", error);
+      }
+    } else {
+      // For other wallets, just update the UI state as there's no backend disconnect call defined
+      console.log(`Disconnecting ${walletId} (UI only)`);
+      setConnectedWallets(prev => prev.filter(id => id !== walletId));
+    }
+  }; // End of handleDisconnect
 
   return (
     <div className={cn("w-full max-w-3xl mx-auto", className)} {...props}>
@@ -142,6 +214,6 @@ const WalletConnect = ({ className, ...props }: WalletConnectProps) => {
       </div>
     </div>
   );
-};
+}; // End of WalletConnect component
 
 export { WalletConnect };

@@ -1,0 +1,10 @@
+type Launchpad = 
+ record {
+   creator: principal;
+   id: nat;
+   name: text;
+ };
+service : {
+  createLaunchpad: (text) -> (nat);
+  getLaunchpad: (nat) -> (opt Launchpad);
+}

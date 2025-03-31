@@ -4,29 +4,70 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Award, CheckCircle, Flame, Shield, Star, Trophy, Zap } from "lucide-react";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { getBackendActor } from "@/services/icpService";
+
+interface ProfileStats {
+  level: number;
+  exp: number;
+  nextLevel: number;
+  rank: string;
+  completedMissions: number;
+  totalMissions: number;
+  tokens: { symbol: string; amount: number; change: string }[];
+  achievements: { name: string; icon: any; completed: boolean }[];
+}
 
 const HeroProfileStats = () => {
-  // Hero stats data
-  const stats = {
-    level: 7,
-    exp: 3450,
-    nextLevel: 5000,
-    rank: "Space Guardian",
-    completedMissions: 12,
-    totalMissions: 24,
-    tokens: [
-      { symbol: "STEP", amount: 2750, change: "+350" },
-      { symbol: "ICP", amount: 5.25, change: "+0.75" },
-      { symbol: "ETH", amount: 0.15, change: "+0.01" }
-    ],
-    achievements: [
-      { name: "First Steps", icon: CheckCircle, completed: true },
-      { name: "Chain Explorer", icon: Zap, completed: true },
-      { name: "Community Builder", icon: Trophy, completed: true },
-      { name: "Governance Expert", icon: Shield, completed: false },
-      { name: "Cosmic Guardian", icon: Star, completed: false }
-    ]
-  };
+  const [stats, setStats] = useState<ProfileStats>({
+    level: 0,
+    exp: 0,
+    nextLevel: 0,
+    rank: "",
+    completedMissions: 0,
+    totalMissions: 0,
+    tokens: [],
+    achievements: []
+  });
+
+  useEffect(() => {
+    const loadDigitalID = async () => {
+      try {
+        const actor = await getBackendActor();
+        const digitalID = await actor.getDigitalID();
+
+        if (digitalID && digitalID.length > 0) {
+          const { displayName, createdAt, wallets, daoMemberships } = digitalID[0];
+
+          // Replace mock data with actual data from the backend
+          setStats({
+            level: 7, // Replace with actual level from backend
+            exp: 3450, // Replace with actual exp from backend
+            nextLevel: 5000, // Replace with actual nextLevel from backend
+            rank: "Space Guardian", // Replace with actual rank from backend
+            completedMissions: 12, // Replace with actual completedMissions from backend
+            totalMissions: 24, // Replace with actual totalMissions from backend
+            tokens: [
+              { symbol: "STEP", amount: 2750, change: "+350" }, // Replace with actual token data from backend
+              { symbol: "ICP", amount: 5.25, change: "+0.75" }, // Replace with actual token data from backend
+              { symbol: "ETH", amount: 0.15, change: "+0.01" } // Replace with actual token data from backend
+            ],
+            achievements: [
+              { name: "First Steps", icon: CheckCircle, completed: true }, // Replace with actual achievement data from backend
+              { name: "Chain Explorer", icon: Zap, completed: true }, // Replace with actual achievement data from backend
+              { name: "Community Builder", icon: Trophy, completed: true }, // Replace with actual achievement data from backend
+              { name: "Governance Expert", icon: Shield, completed: false }, // Replace with actual achievement data from backend
+              { name: "Cosmic Guardian", icon: Star, completed: false } // Replace with actual achievement data from backend
+            ]
+          });
+        }
+      } catch (error) {
+        console.error("Failed to load digital ID:", error);
+      }
+    };
+
+    loadDigitalID();
+  }, []);
   
   const progressPercent = (stats.exp / stats.nextLevel) * 100;
   

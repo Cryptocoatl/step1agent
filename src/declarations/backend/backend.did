@@ -1,0 +1,15 @@
+type DigitalID = 
+ record {
+   createdAt: int;
+   daoMemberships: vec text;
+   displayName: text;
+   wallets: vec text;
+ };
+service : {
+  getDigitalID: () -> (opt DigitalID);
+  getTimestamp: () -> (int);
+  heartbeat: () -> (text) query;
+  linkWallet: (text, text) -> (bool);
+  ping: () -> (text);
+  registerDigitalID: (text) -> (bool);
+}

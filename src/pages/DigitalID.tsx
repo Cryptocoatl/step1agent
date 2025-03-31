@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { DigitalIDCard } from "@/components/digital-id/DigitalIDCard";
+import DigitalIDCard from "@/components/digital-id/DigitalIDCard"; // Corrected default import
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { AnimatedCard } from "@/components/ui/AnimatedCard";
 import { Footer } from "@/components/layout/Footer";
