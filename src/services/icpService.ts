@@ -3,6 +3,8 @@ import { Actor, HttpAgent } from '@dfinity/agent';
 // Note: We're using type imports for the declaration files
 import type { _SERVICE } from '../declarations/backend/backend.did';
 import { idlFactory } from '../declarations/backend/backend';
+// Re-export the ICP wallet service from the new location
+export * from './icp/icpWalletService';
 
 const DFX_NETWORK = import.meta.env.VITE_DFX_NETWORK || 'local';
 const canisterId = import.meta.env.VITE_CANISTER_ID_BACKEND;

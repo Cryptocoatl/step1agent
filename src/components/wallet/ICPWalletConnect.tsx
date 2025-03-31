@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { walletOptions } from "@/components/wallet/WalletOptionsConfig";
 import { WalletOption } from "@/components/wallet/WalletOption";
 import { WalletInfoPanel } from "@/components/wallet/WalletInfoPanel";
-import { connectWallet, WalletType, getAvailableWallets } from "@/services/icpWalletService";
+import { connectWallet, WalletType, getAvailableWallets } from "@/services/icp/icpWalletService";
 import { toast } from "@/hooks/use-toast";
 import { getBackendActor } from "@/services/icpService";
 
@@ -116,15 +116,22 @@ const ICPWalletConnect = ({ className, onWalletConnected, ...props }: ICPWalletC
         </div>
 
         <div className="grid gap-4">
-          {walletOptions.map((wallet) => (
+          {availableWallets.map((wallet) => (
             <WalletOption
-              key={wallet.id}
-              wallet={wallet}
-              isConnected={connectedWallet === wallet.id}
-              isConnecting={isConnecting === wallet.id}
-              principalId={connectedWallet === wallet.id ? principalId : null}
-              isAvailable={isWalletAvailable(wallet.id)}
-              onConnect={() => handleConnect(wallet.id)}
+              key={wallet.type}
+              wallet={{
+                id: wallet.type,
+                name: wallet.name,
+                icon: wallet.icon,
+                description: wallet.description,
+                color: "from-purple-400 to-indigo-500",
+                url: wallet.url
+              }}
+              isConnected={connectedWallet === wallet.type}
+              isConnecting={isConnecting === wallet.type}
+              principalId={connectedWallet === wallet.type ? principalId : null}
+              isAvailable={isWalletAvailable(wallet.type)}
+              onConnect={() => handleConnect(wallet.type)}
               onDisconnect={handleDisconnect}
             />
           ))}

@@ -5,6 +5,7 @@ export interface WalletOption {
   icon: string;
   description: string;
   color: string;
+  url?: string;
 }
 
 export const walletOptions: WalletOption[] = [
