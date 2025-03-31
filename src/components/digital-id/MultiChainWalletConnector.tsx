@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
-import { connectWallet, getConnectedWallets, disconnectWallet } from "@/services/walletService";
+import { connectWallet, getConnectedWallets, disconnectWallet } from "@/services/wallet";
 import { useAuth } from "@/providers/SupabaseAuthProvider";
 import { cn } from "@/lib/utils";
 import { WalletOptionItem } from "./WalletOptionItem";

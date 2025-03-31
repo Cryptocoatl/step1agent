@@ -77,4 +77,4 @@ export const isWalletInstalled = (walletType: WalletType): boolean => {
 };
 
 // Re-export the WalletType for ease of use
-export { WalletType } from "./types";
+export type { WalletType } from "./types";
