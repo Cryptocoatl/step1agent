@@ -1,12 +1,13 @@
 
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { walletOptions } from "@/components/wallet/WalletOptionsConfig";
 import { WalletOption } from "@/components/wallet/WalletOption";
 import { WalletInfoPanel } from "@/components/wallet/WalletInfoPanel";
 import { connectWallet, WalletType, getAvailableWallets } from "@/services/icp/icpWalletService";
 import { toast } from "@/hooks/use-toast";
 import { getBackendActor } from "@/services/icpService";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 interface ICPWalletConnectProps extends React.HTMLAttributes<HTMLDivElement> {
   onWalletConnected?: (principalId: string) => void;
@@ -17,6 +18,7 @@ const ICPWalletConnect = ({ className, onWalletConnected, ...props }: ICPWalletC
   const [principalId, setPrincipalId] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState<WalletType | null>(null);
   const [availableWallets, setAvailableWallets] = useState<ReturnType<typeof getAvailableWallets>>([]);
+  const [isRegistering, setIsRegistering] = useState(false);
   
   // Check which wallets are available in the browser
   useEffect(() => {
@@ -33,33 +35,45 @@ const ICPWalletConnect = ({ className, onWalletConnected, ...props }: ICPWalletC
         setConnectedWallet(walletId);
         setPrincipalId(principal);
         
-        // Register the wallet with the backend
-        try {
-          const actor = getBackendActor();
-          await actor.linkWallet(principal, "icp");
-          
-          toast({
-            title: "Wallet Linked",
-            description: "Wallet successfully linked with your Digital ID",
-          });
-          
-          // Call the callback if provided
-          if (onWalletConnected) {
-            onWalletConnected(principal);
-          }
-        } catch (error) {
-          console.error("Failed to register wallet with backend:", error);
-          toast({
-            title: "Backend Registration Failed",
-            description: "Wallet connected but failed to register with backend",
-            variant: "destructive",
-          });
+        // Call the callback if provided
+        if (onWalletConnected) {
+          onWalletConnected(principal);
         }
       }
     } catch (error) {
       console.error(`Error connecting to ${walletId}:`, error);
+      toast({
+        title: "Connection Failed",
+        description: (error as Error).message || `Failed to connect to ${walletId}`,
+        variant: "destructive"
+      });
     } finally {
       setIsConnecting(null);
+    }
+  };
+
+  const handleLinkWallet = async () => {
+    if (connectedWallet && principalId) {
+      setIsRegistering(true);
+      try {
+        // Register the wallet with the backend
+        const actor = await getBackendActor();
+        await actor.linkWallet(principalId, "icp");
+        
+        toast({
+          title: "Wallet Linked",
+          description: "Wallet successfully linked with your Digital ID",
+        });
+      } catch (error) {
+        console.error("Failed to register wallet with backend:", error);
+        toast({
+          title: "Backend Registration Failed",
+          description: "Wallet connected but failed to register with backend",
+          variant: "destructive",
+        });
+      } finally {
+        setIsRegistering(false);
+      }
     }
   };
 
@@ -136,6 +150,19 @@ const ICPWalletConnect = ({ className, onWalletConnected, ...props }: ICPWalletC
             />
           ))}
         </div>
+        
+        {connectedWallet && principalId && (
+          <div className="mt-4 flex justify-center">
+            <Button 
+              onClick={handleLinkWallet} 
+              disabled={isRegistering}
+              className="bg-gradient-to-r from-accent to-purple-600 hover:from-accent/80 hover:to-purple-700"
+            >
+              {isRegistering ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Link Wallet to Digital ID
+            </Button>
+          </div>
+        )}
         
         <WalletInfoPanel />
       </div>
