@@ -1,3 +1,4 @@
+
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
@@ -19,9 +20,9 @@ describe('Navbar Component', () => {
     await waitFor(() => {
       const nav = screen.getByRole('banner') // Header element has banner role
       expect(nav).toBeInTheDocument()
-      expect(screen.getByRole('link', { name: /digital id/i, exact: false })).toBeInTheDocument()
-      expect(screen.getByRole('link', { name: /wallet/i, exact: false })).toBeInTheDocument()
-      expect(screen.getByRole('link', { name: /dao/i, exact: false })).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: /digital id/i })).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: /wallet/i })).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: /dao/i })).toBeInTheDocument()
     })
   })
 

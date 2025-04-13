@@ -1,5 +1,10 @@
-import { getCanisterStatus } from './icpService'
-import { getActiveUsersCount } from './digitalIdService'
+
+// Define return types directly since we can't import the functions
+interface CanisterStatus {
+  status: string;
+  memory: string;
+  cycles: string;
+}
 
 export interface MonitoringData {
   canisters: number
@@ -9,16 +14,23 @@ export interface MonitoringData {
   memoryUsage: number
 }
 
+// Mocked functions for the service
+const getCanisterStatus = async (): Promise<CanisterStatus> => {
+  return { status: "running", memory: "10MB", cycles: "1B" };
+};
+
+const getActiveUsersCount = async (): Promise<number> => {
+  return 100;
+};
+
 export async function getMonitoringData(): Promise<MonitoringData> {
   try {
     // TODO: Replace with real monitoring endpoints
-    const [canisters, activeUsers] = await Promise.all([
-      getCanisterStatus(),
-      getActiveUsersCount()
-    ])
+    const canisters = await getCanisterStatus();
+    const activeUsers = await getActiveUsersCount();
 
     return {
-      canisters: canisters?.length || 0,
+      canisters: 1, // Since we're just returning a single canister object now
       activeUsers: activeUsers || 0,
       storageUsage: Math.floor(Math.random() * 100),
       cpuUsage: Math.floor(Math.random() * 100),
@@ -29,11 +41,3 @@ export async function getMonitoringData(): Promise<MonitoringData> {
     throw error
   }
 }
-
-const getCanisterStatus = async () => {
-  return { status: "running", memory: "10MB", cycles: "1B" };
-};
-
-const getActiveUsersCount = async () => {
-  return 100;
-};

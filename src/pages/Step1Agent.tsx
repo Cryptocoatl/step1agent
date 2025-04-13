@@ -1,7 +1,7 @@
 
 import { Step1Agent } from "@/components/agent/Step1Agent";
-import { Footer } from "@/components/layout/Footer";
-import { Navbar } from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import Navbar from "@/components/layout/Navbar";
 import { AnimatedCard } from "@/components/ui/AnimatedCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -29,7 +29,7 @@ export default function Step1AgentPage() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          <AnimatedCard animation="slideRight" className="p-6">
+          <AnimatedCard animation="slide" className="p-6">
             <div className="flex items-center mb-4">
               <div className="h-10 w-10 rounded-full bg-green-500/10 flex items-center justify-center mr-3">
                 <Leaf className="h-5 w-5 text-green-500" />
@@ -41,7 +41,7 @@ export default function Step1AgentPage() {
             </p>
           </AnimatedCard>
           
-          <AnimatedCard animation="slideUp" className="p-6">
+          <AnimatedCard animation="slide" className="p-6">
             <div className="flex items-center mb-4">
               <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center mr-3">
                 <Globe className="h-5 w-5 text-blue-500" />
@@ -53,7 +53,7 @@ export default function Step1AgentPage() {
             </p>
           </AnimatedCard>
           
-          <AnimatedCard animation="slideLeft" className="p-6">
+          <AnimatedCard animation="slide" className="p-6">
             <div className="flex items-center mb-4">
               <div className="h-10 w-10 rounded-full bg-purple-500/10 flex items-center justify-center mr-3">
                 <UsersRound className="h-5 w-5 text-purple-500" />

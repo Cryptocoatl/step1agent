@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatedCard } from "@/components/ui/AnimatedCard";
@@ -21,7 +22,7 @@ const Learn = () => {
         </section>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <AnimatedCard animation="slideUp" className="p-6">
+          <AnimatedCard animation="slide" className="p-6">
             <Rocket className="h-6 w-6 text-blue-500 mb-4" />
             <h2 className="text-xl font-semibold text-gray-700 mb-2">
               Getting Started with Blockchain
@@ -34,7 +35,7 @@ const Learn = () => {
             </Button>
           </AnimatedCard>
 
-          <AnimatedCard animation="slideUp" className="p-6">
+          <AnimatedCard animation="slide" className="p-6">
             <Code className="h-6 w-6 text-green-500 mb-4" />
             <h2 className="text-xl font-semibold text-gray-700 mb-2">
               Smart Contracts 101
@@ -47,7 +48,7 @@ const Learn = () => {
             </Button>
           </AnimatedCard>
 
-          <AnimatedCard animation="slideUp" className="p-6">
+          <AnimatedCard animation="slide" className="p-6">
             <ShieldCheck className="h-6 w-6 text-purple-500 mb-4" />
             <h2 className="text-xl font-semibold text-gray-700 mb-2">
               Decentralized Identity
@@ -60,7 +61,7 @@ const Learn = () => {
             </Button>
           </AnimatedCard>
 
-          <AnimatedCard animation="slideUp" className="p-6">
+          <AnimatedCard animation="slide" className="p-6">
             <Users className="h-6 w-6 text-orange-500 mb-4" />
             <h2 className="text-xl font-semibold text-gray-700 mb-2">
               DAO Governance
@@ -73,7 +74,7 @@ const Learn = () => {
             </Button>
           </AnimatedCard>
 
-          <AnimatedCard animation="slideUp" className="p-6">
+          <AnimatedCard animation="slide" className="p-6">
             <Lightbulb className="h-6 w-6 text-yellow-500 mb-4" />
             <h2 className="text-xl font-semibold text-gray-700 mb-2">
               Web3 Innovations
@@ -86,7 +87,7 @@ const Learn = () => {
             </Button>
           </AnimatedCard>
 
-          <AnimatedCard animation="slideUp" className="p-6">
+          <AnimatedCard animation="slide" className="p-6">
             <BookOpenCheck className="h-6 w-6 text-red-500 mb-4" />
             <h2 className="text-xl font-semibold text-gray-700 mb-2">
               Advanced Tutorials

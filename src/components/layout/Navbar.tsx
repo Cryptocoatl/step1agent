@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom'
 import { WalletConnect } from '@/components/wallet/WalletConnect'
 
@@ -21,6 +22,8 @@ export default function Navbar() {
           <Link to="/digital-id">Identity</Link>
           <Link to="/wallet">Wallet</Link>
           <Link to="/dao">DAO</Link>
+          <Link to="/learn">Learn</Link>
+          <Link to="/step1-agent">Step1 Agent</Link>
         </nav>
         <WalletConnect />
       </div>
