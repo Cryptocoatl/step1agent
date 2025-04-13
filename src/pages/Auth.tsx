@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/providers/SupabaseAuthProvider";
 import { Button } from "@/components/ui/button";
@@ -7,8 +6,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { AnimatedCard } from "@/components/ui/AnimatedCard";
 import { SpaceBackground } from "@/components/ui/SpaceBackground";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import { Navigate, Link, useLocation, useNavigate } from "react-router-dom";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
@@ -49,7 +48,6 @@ const Auth = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Handle access token from URL hash
   useEffect(() => {
     const handleTokenFromHash = async () => {
       const hash = window.location.hash;
@@ -57,14 +55,12 @@ const Auth = () => {
       if (hash && hash.includes("access_token")) {
         setIsProcessingAuth(true);
         
-        // Extract tokens from hash
         const hashParams = new URLSearchParams(hash.substring(1));
         const accessToken = hashParams.get("access_token");
         const refreshToken = hashParams.get("refresh_token");
         
         if (accessToken && refreshToken) {
           try {
-            // Set the session with the tokens from URL
             const { error } = await supabase.auth.setSession({
               access_token: accessToken,
               refresh_token: refreshToken
@@ -72,7 +68,6 @@ const Auth = () => {
 
             if (error) throw error;
             
-            // Clear the hash from URL to avoid token exposure
             window.history.replaceState({}, document.title, window.location.pathname + "?verified=true");
             
             setIsVerified(true);
@@ -97,7 +92,6 @@ const Auth = () => {
     handleTokenFromHash();
   }, []);
 
-  // Check for verification success from URL parameter
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const verified = params.get('verified');
@@ -109,7 +103,6 @@ const Auth = () => {
         description: "You can now access all STEP1 features",
       });
       
-      // Redirect to digital ID after a short delay
       if (user) {
         setTimeout(() => {
           navigate('/digital-id');
@@ -179,7 +172,6 @@ const Auth = () => {
     }
   };
 
-  // Redirect if user is already logged in and we're not in the verification success state
   if (user && !isVerified && !isProcessingAuth) {
     return <Navigate to="/digital-id" replace />;
   }

@@ -29,3 +29,11 @@ export async function getMonitoringData(): Promise<MonitoringData> {
     throw error
   }
 }
+
+const getCanisterStatus = async () => {
+  return { status: "running", memory: "10MB", cycles: "1B" };
+};
+
+const getActiveUsersCount = async () => {
+  return 100;
+};

@@ -42,7 +42,7 @@ export default function DigitalIDPage() {
       // Then register Digital ID
       const actor = await getBackendActor();
       const displayName = digitalId.displayName || "STEP1 User";
-      await actor.registerDigitalID(displayName, null);
+      await actor.registerDigitalID(displayName);
       
       toast({
         title: "Digital ID Registered",
@@ -65,7 +65,7 @@ export default function DigitalIDPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <BackgroundElements />
-      <DigitalIDHeader />
+      <DigitalIDHeader tokenBalance={digitalId.tokenBalance || 0} />
       
       {digitalId.isLoading ? (
         <div className="flex justify-center items-center py-20">

@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { AnimatedCard } from "@/components/ui/AnimatedCard";
-import { Footer } from "@/components/layout/Footer";
-import { Navbar } from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import Navbar from "@/components/layout/Navbar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StepOneAgent } from "@/components/agent/StepOneAgent";
 import { toast } from "@/hooks/use-toast";

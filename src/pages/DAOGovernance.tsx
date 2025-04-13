@@ -1,12 +1,11 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Users, BarChart2, Vote, Clock, ChevronRight, History, AlertTriangle, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { AnimatedCard } from "@/components/ui/AnimatedCard";
-import { Footer } from "@/components/layout/Footer";
-import { Navbar } from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import Navbar from "@/components/layout/Navbar";
 import { StepOneAgent } from "@/components/agent/StepOneAgent";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";

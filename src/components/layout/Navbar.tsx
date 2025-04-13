@@ -1,6 +1,15 @@
 import { Link } from 'react-router-dom'
 import { WalletConnect } from '@/components/wallet/WalletConnect'
 
+const routes = [
+  { name: "Home", path: "/" },
+  { name: "Digital ID", path: "/digital-id" },
+  { name: "Wallet", path: "/wallet" },
+  { name: "DAO", path: "/dao" },
+  { name: "Learn", path: "/learn" },
+  { name: "Step1 Agent", path: "/step1-agent" },
+];
+
 export default function Navbar() {
   return (
     <header className="border-b">
