@@ -1,5 +1,6 @@
+
 import React, { Suspense, useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import Home from '@/pages/Home';
 import Auth from '@/pages/Auth';
@@ -15,40 +16,54 @@ import { useAuth } from '@/providers/SupabaseAuthProvider';
 import { Step1AgentButton } from "@/components/agent/Step1AgentButton";
 import Step1AgentPage from "@/pages/Step1Agent";
 
-function App() {
-  const { session, isLoading } = useAuth();
+// Create a wrapper component that uses the router-dependent hooks
+const AppRoutes = () => {
+  const { session, isLoading, isEmailVerified } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isLoading) {
       console.log('App is loading...');
     } else if (session) {
       console.log('User session:', session);
+      // If email is verified, redirect to digital-id
+      if (isEmailVerified && window.location.pathname === '/login') {
+        navigate('/digital-id');
+      }
     } else {
       console.log('No user session.');
     }
-  }, [session, isLoading]);
+  }, [session, isLoading, isEmailVerified, navigate]);
 
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Auth />} />
+        <Route path="/wallet" element={<Wallet />} />
+        <Route path="/wallet-dashboard" element={<WalletDashboard />} />
+        <Route path="/digital-id" element={<DigitalID />} />
+        <Route path="/dao" element={<DAO />} />
+        <Route path="/dao-governance" element={<DAOGovernance />} />
+        <Route path="/learn" element={<Learn />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/step1-agent" element={<Step1AgentPage />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <Step1AgentButton />
+    </>
+  );
+};
+
+function App() {
   return (
     <>
       <BrowserRouter>
         <Suspense fallback={<div>Loading...</div>}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Auth />} />
-            <Route path="/wallet" element={<Wallet />} />
-            <Route path="/wallet-dashboard" element={<WalletDashboard />} />
-            <Route path="/digital-id" element={<DigitalID />} />
-            <Route path="/dao" element={<DAO />} />
-            <Route path="/dao-governance" element={<DAOGovernance />} />
-            <Route path="/learn" element={<Learn />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/step1-agent" element={<Step1AgentPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppRoutes />
         </Suspense>
       </BrowserRouter>
       <Toaster />
-      <Step1AgentButton />
     </>
   );
 }

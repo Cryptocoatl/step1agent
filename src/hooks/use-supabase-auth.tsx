@@ -3,14 +3,12 @@ import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
 
 export function useSupabaseAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     let mounted = true;
@@ -38,7 +36,7 @@ export function useSupabaseAuth() {
                 .eq('id', session.user.id)
                 .single();
                 
-              // If new sign-up and email is verified, redirect to digital-id
+              // If new sign-up and email is verified, navigate to digital-id
               if (event === 'SIGNED_IN' && session.user.email_confirmed_at) {
                 // If this is a new user that just confirmed email
                 if (!profileData?.display_name) {
@@ -46,7 +44,7 @@ export function useSupabaseAuth() {
                     title: "Email verified successfully",
                     description: "Your STEP1 Digital ID is being set up",
                   });
-                  navigate('/digital-id');
+                  // We'll handle navigation in the component using this information
                 }
               }
             } catch (error) {
@@ -93,7 +91,7 @@ export function useSupabaseAuth() {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, []);
 
   return {
     user,
