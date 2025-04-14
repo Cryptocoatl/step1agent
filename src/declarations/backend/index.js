@@ -61,3 +61,4 @@ export const createActor = (canisterId, options = {}) => {
 };
 
 export const backend = createActor(canisterId);
+
