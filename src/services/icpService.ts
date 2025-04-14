@@ -1,3 +1,4 @@
+
 import { Actor, HttpAgent, Identity } from '@dfinity/agent';
 import { AuthClient } from '@dfinity/auth-client';
 import type { _SERVICE } from '../declarations/backend/backend.did';
@@ -47,7 +48,11 @@ const setupIcpActorConfig = (identity?: Identity) => {
   if (HOST.includes('127.0.0.1')) {
     try {
       // We need to provide the global object for the CBOR decoder
-      (window as any).global = window;
+      // Set global for CBOR decoder
+      if (typeof window !== 'undefined' && !(window as any).global) {
+        (window as any).global = window;
+      }
+      
       agent.fetchRootKey().catch(err => {
         console.warn('Unable to fetch root key. Error:', err);
         console.warn('Ensure your local replica is running');

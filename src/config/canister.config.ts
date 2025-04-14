@@ -1,3 +1,4 @@
+
 // Read canister IDs from environment variables set during build
 // Fallback to hardcoded local IDs if environment variables are not set (should not happen with dfx deploy)
 
@@ -5,8 +6,6 @@ const getCanisterId = (envVar: string, localId: string): string => {
   const id = import.meta.env[envVar] || localId;
   if (!id) {
     console.error(`FATAL: Canister ID environment variable ${envVar} is not set and no fallback provided.`);
-    // In a real app, you might throw an error or handle this more gracefully
-    return ''; // Return empty string to avoid undefined errors, though this will likely cause actor creation failure
   }
   console.log(`Using Canister ID for ${envVar.replace('VITE_CANISTER_ID_', '')}: ${id}`);
   return id;
@@ -27,3 +26,4 @@ export const DFX_NETWORK = import.meta.env.VITE_DFX_NETWORK || 'local';
 export const HOST = DFX_NETWORK === 'local' ? 'http://127.0.0.1:4943' : 'https://ic0.app';
 
 console.log(`Network: ${DFX_NETWORK}, Host: ${HOST}`);
+console.log('Canister configuration loaded:', LOCAL_CANISTERS);
