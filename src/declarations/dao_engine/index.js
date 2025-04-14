@@ -15,6 +15,16 @@ export const canisterId =
   import.meta.env.DAO_ENGINE_CANISTER_ID;
 
 export const createActor = (canisterId, options = {}) => {
+  // Ensure we have a valid canisterId
+  if (!canisterId) {
+    console.error("Canister ID is undefined for dao_engine. This will cause Actor creation to fail.");
+    console.debug("ENV Variables:", {
+      VITE_CANISTER_ID_DAO_ENGINE: import.meta.env.VITE_CANISTER_ID_DAO_ENGINE,
+      DAO_ENGINE_CANISTER_ID: import.meta.env.DAO_ENGINE_CANISTER_ID,
+      network: import.meta.env.VITE_DFX_NETWORK
+    });
+  }
+
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
 
   if (options.agent && options.agentOptions) {
@@ -25,6 +35,11 @@ export const createActor = (canisterId, options = {}) => {
 
   // Fetch root key for certificate validation during development
   if (import.meta.env.VITE_DFX_NETWORK !== "ic") {
+    // Set global for CBOR decoder
+    if (typeof window !== 'undefined' && !window.global) {
+      window.global = window;
+    }
+    
     agent.fetchRootKey().catch((err) => {
       console.warn(
         "Unable to fetch root key. Check to ensure that your local replica is running"

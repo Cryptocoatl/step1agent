@@ -1,3 +1,4 @@
+
 import { Actor, HttpAgent } from "@dfinity/agent";
 
 // Imports and re-exports candid interface
@@ -10,10 +11,20 @@ export { idlFactory } from "./ai_agent_orchestrator.did.js";
  * beginning in dfx 0.15.0
  */
 export const canisterId =
-  process.env.CANISTER_ID_AI_AGENT_ORCHESTRATOR ||
-  process.env.AI_AGENT_ORCHESTRATOR_CANISTER_ID;
+  import.meta.env.VITE_CANISTER_ID_AI_AGENT_ORCHESTRATOR ||
+  import.meta.env.AI_AGENT_ORCHESTRATOR_CANISTER_ID;
 
 export const createActor = (canisterId, options = {}) => {
+  // Ensure we have a valid canisterId
+  if (!canisterId) {
+    console.error("Canister ID is undefined for ai_agent_orchestrator. This will cause Actor creation to fail.");
+    console.debug("ENV Variables:", {
+      VITE_CANISTER_ID_AI_AGENT_ORCHESTRATOR: import.meta.env.VITE_CANISTER_ID_AI_AGENT_ORCHESTRATOR,
+      AI_AGENT_ORCHESTRATOR_CANISTER_ID: import.meta.env.AI_AGENT_ORCHESTRATOR_CANISTER_ID,
+      network: import.meta.env.VITE_DFX_NETWORK
+    });
+  }
+
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
 
   if (options.agent && options.agentOptions) {
@@ -23,7 +34,12 @@ export const createActor = (canisterId, options = {}) => {
   }
 
   // Fetch root key for certificate validation during development
-  if (process.env.DFX_NETWORK !== "ic") {
+  if (import.meta.env.VITE_DFX_NETWORK !== "ic") {
+    // Set global for CBOR decoder
+    if (typeof window !== 'undefined' && !window.global) {
+      window.global = window;
+    }
+    
     agent.fetchRootKey().catch((err) => {
       console.warn(
         "Unable to fetch root key. Check to ensure that your local replica is running"
