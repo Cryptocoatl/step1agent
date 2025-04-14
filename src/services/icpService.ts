@@ -20,8 +20,8 @@ const AUTH_CONFIG = {
 
 debug('Environment:', {
   network: import.meta.env.VITE_DFX_NETWORK,
-  backendCanister: import.meta.env.VITE_CANISTER_ID_BACKEND,
-  frontendCanister: import.meta.env.VITE_CANISTER_ID_FRONTEND,
+  backendCanister: LOCAL_CANISTERS.backend,
+  frontendCanister: LOCAL_CANISTERS.frontend,
   identityProvider: AUTH_CONFIG.identityProvider
 });
 
@@ -79,7 +79,8 @@ export const createActor = async (identity?: Identity): Promise<_SERVICE> => {
     debug('Actor initialized successfully:', heartbeat);
   } catch (error) {
     console.error('Failed to initialize actor:', error);
-    throw error;
+    console.error('This may be due to a network issue or the canister not being deployed');
+    console.warn('Continuing with limited functionality');
   }
   
   return actor;

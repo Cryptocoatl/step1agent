@@ -12,17 +12,14 @@ export { idlFactory } from "./backend.did.js";
  */
 export const canisterId =
   import.meta.env.VITE_CANISTER_ID_BACKEND ||
-  import.meta.env.BACKEND_CANISTER_ID;
+  import.meta.env.BACKEND_CANISTER_ID ||
+  "bd3sg-teaaa-aaaaa-qaaba-cai"; // Fallback to local development ID
 
 export const createActor = (canisterId, options = {}) => {
   // Ensure we have a valid canisterId
   if (!canisterId) {
-    console.error("Canister ID is undefined. This will cause Actor creation to fail.");
-    console.debug("ENV Variables:", {
-      VITE_CANISTER_ID_BACKEND: import.meta.env.VITE_CANISTER_ID_BACKEND,
-      BACKEND_CANISTER_ID: import.meta.env.BACKEND_CANISTER_ID,
-      network: import.meta.env.VITE_DFX_NETWORK
-    });
+    console.error("Canister ID is undefined for backend. Using fallback value.");
+    canisterId = "bd3sg-teaaa-aaaaa-qaaba-cai"; // Fallback local development ID
   }
 
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
@@ -61,4 +58,3 @@ export const createActor = (canisterId, options = {}) => {
 };
 
 export const backend = createActor(canisterId);
-

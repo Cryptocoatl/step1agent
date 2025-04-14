@@ -12,9 +12,16 @@ export { idlFactory } from "./frontend.did.js";
  */
 export const canisterId =
   import.meta.env.VITE_CANISTER_ID_FRONTEND ||
-  import.meta.env.FRONTEND_CANISTER_ID;
+  import.meta.env.FRONTEND_CANISTER_ID ||
+  "b77ix-eeaaa-aaaaa-qaada-cai"; // Fallback to local development ID
 
 export const createActor = (canisterId, options = {}) => {
+  // Ensure we have a valid canisterId
+  if (!canisterId) {
+    console.error("Canister ID is undefined for frontend. Using fallback value.");
+    canisterId = "b77ix-eeaaa-aaaaa-qaada-cai"; // Fallback local development ID
+  }
+
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
 
   if (options.agent && options.agentOptions) {

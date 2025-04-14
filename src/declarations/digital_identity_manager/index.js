@@ -12,9 +12,16 @@ export { idlFactory } from "./digital_identity_manager.did.js";
  */
 export const canisterId =
   import.meta.env.VITE_CANISTER_ID_DIGITAL_IDENTITY_MANAGER ||
-  import.meta.env.DIGITAL_IDENTITY_MANAGER_CANISTER_ID;
+  import.meta.env.DIGITAL_IDENTITY_MANAGER_CANISTER_ID ||
+  "bw4dl-smaaa-aaaaa-qaacq-cai"; // Fallback to local development ID
 
 export const createActor = (canisterId, options = {}) => {
+  // Ensure we have a valid canisterId
+  if (!canisterId) {
+    console.error("Canister ID is undefined for digital_identity_manager. Using fallback value.");
+    canisterId = "bw4dl-smaaa-aaaaa-qaacq-cai"; // Fallback local development ID
+  }
+
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
 
   if (options.agent && options.agentOptions) {

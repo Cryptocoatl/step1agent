@@ -12,9 +12,16 @@ export { idlFactory } from "./cross_chain_wallet_adapter.did.js";
  */
 export const canisterId =
   import.meta.env.VITE_CANISTER_ID_CROSS_CHAIN_WALLET_ADAPTER ||
-  import.meta.env.CROSS_CHAIN_WALLET_ADAPTER_CANISTER_ID;
+  import.meta.env.CROSS_CHAIN_WALLET_ADAPTER_CANISTER_ID ||
+  "be2us-64aaa-aaaaa-qaabq-cai"; // Fallback to local development ID
 
 export const createActor = (canisterId, options = {}) => {
+  // Ensure we have a valid canisterId
+  if (!canisterId) {
+    console.error("Canister ID is undefined for cross_chain_wallet_adapter. Using fallback value.");
+    canisterId = "be2us-64aaa-aaaaa-qaabq-cai"; // Fallback local development ID
+  }
+
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
 
   if (options.agent && options.agentOptions) {

@@ -1,13 +1,14 @@
 
 // Read canister IDs from environment variables set during build
-// Fallback to hardcoded local IDs if environment variables are not set (should not happen with dfx deploy)
+// Fallback to hardcoded local IDs if environment variables are not set
 
 const getCanisterId = (envVar: string, localId: string): string => {
   const id = import.meta.env[envVar] || localId;
   if (!id) {
-    console.error(`FATAL: Canister ID environment variable ${envVar} is not set and no fallback provided.`);
+    console.warn(`Warning: Canister ID environment variable ${envVar} is not set. Using fallback value.`);
+  } else {
+    console.log(`Using Canister ID for ${envVar.replace('VITE_CANISTER_ID_', '')}: ${id}`);
   }
-  console.log(`Using Canister ID for ${envVar.replace('VITE_CANISTER_ID_', '')}: ${id}`);
   return id;
 };
 

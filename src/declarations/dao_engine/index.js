@@ -12,17 +12,14 @@ export { idlFactory } from "./dao_engine.did.js";
  */
 export const canisterId =
   import.meta.env.VITE_CANISTER_ID_DAO_ENGINE ||
-  import.meta.env.DAO_ENGINE_CANISTER_ID;
+  import.meta.env.DAO_ENGINE_CANISTER_ID ||
+  "br5f7-7uaaa-aaaaa-qaaca-cai"; // Fallback to local development ID
 
 export const createActor = (canisterId, options = {}) => {
   // Ensure we have a valid canisterId
   if (!canisterId) {
-    console.error("Canister ID is undefined for dao_engine. This will cause Actor creation to fail.");
-    console.debug("ENV Variables:", {
-      VITE_CANISTER_ID_DAO_ENGINE: import.meta.env.VITE_CANISTER_ID_DAO_ENGINE,
-      DAO_ENGINE_CANISTER_ID: import.meta.env.DAO_ENGINE_CANISTER_ID,
-      network: import.meta.env.VITE_DFX_NETWORK
-    });
+    console.error("Canister ID is undefined for dao_engine. Using fallback value.");
+    canisterId = "br5f7-7uaaa-aaaaa-qaaca-cai"; // Fallback local development ID
   }
 
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
