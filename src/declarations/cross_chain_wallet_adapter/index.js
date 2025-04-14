@@ -25,6 +25,11 @@ export const createActor = (canisterId, options = {}) => {
 
   // Fetch root key for certificate validation during development
   if (import.meta.env.VITE_DFX_NETWORK !== "ic") {
+    // Set global for CBOR decoder
+    if (typeof window !== 'undefined' && !window.global) {
+      window.global = window;
+    }
+    
     agent.fetchRootKey().catch((err) => {
       console.warn(
         "Unable to fetch root key. Check to ensure that your local replica is running"

@@ -37,8 +37,8 @@ export const createActor = (canisterId, options = {}) => {
   if (import.meta.env.VITE_DFX_NETWORK !== "ic") {
     try {
       // Set global for CBOR decoder
-      if (typeof window !== 'undefined' && !(window as any).global) {
-        (window as any).global = window;
+      if (typeof window !== 'undefined' && !window.global) {
+        window.global = window;
       }
       
       agent.fetchRootKey().catch((err) => {
