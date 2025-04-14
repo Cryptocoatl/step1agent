@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState } from 'react'
 import { AuthClient } from '@dfinity/auth-client'
 
@@ -17,9 +18,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const connect = async () => {
     const authClient = await AuthClient.create()
     await authClient.login({
-      identityProvider: process.env.DFX_NETWORK === 'ic' 
+      identityProvider: import.meta.env.VITE_DFX_NETWORK === 'ic' 
         ? 'https://identity.ic0.app' 
-        : `http://localhost:4943?canisterId=${process.env.CANISTER_ID_INTERNET_IDENTITY}`
+        : `http://localhost:4943?canisterId=${import.meta.env.VITE_CANISTER_ID_INTERNET_IDENTITY}`
     })
     setIsConnected(true)
     setPrincipal(authClient.getIdentity().getPrincipal().toString())
