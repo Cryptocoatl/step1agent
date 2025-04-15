@@ -1,3 +1,4 @@
+
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { WalletConnect } from './WalletConnect'
@@ -13,7 +14,9 @@ describe('WalletConnect Component', () => {
       isConnected: false,
       principal: null,
       connect: vi.fn(),
-      disconnect: vi.fn()
+      disconnect: vi.fn(),
+      createWallet: vi.fn(),
+      isLoading: false
     })
 
     render(<WalletConnect />)
@@ -26,7 +29,9 @@ describe('WalletConnect Component', () => {
       isConnected: false,
       principal: null,
       connect: mockConnect,
-      disconnect: vi.fn()
+      disconnect: vi.fn(),
+      createWallet: vi.fn(),
+      isLoading: false
     })
 
     render(<WalletConnect />)
@@ -39,7 +44,9 @@ describe('WalletConnect Component', () => {
       isConnected: true,
       principal: 'ryjl3-tyaaa-aaaaa-aaaba-cai',
       connect: vi.fn(),
-      disconnect: vi.fn()
+      disconnect: vi.fn(),
+      createWallet: vi.fn(),
+      isLoading: false
     })
 
     render(<WalletConnect />)

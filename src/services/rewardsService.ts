@@ -119,3 +119,28 @@ export const trackContentCompletion = async (
     return false;
   }
 };
+
+// Mark content as completed (used by EducationalContent component)
+export const markContentCompleted = async (contentId: string, contentType: string): Promise<boolean> => {
+  return await trackContentCompletion(contentId, contentType);
+};
+
+// Check if content is completed (used by EducationalContent component)
+export const isContentCompleted = async (contentId: string): Promise<boolean> => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+    
+    const { data } = await supabase
+      .from('content_completion')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('content_id', contentId)
+      .single();
+    
+    return !!data;
+  } catch (error) {
+    // If the error is because no records were found, it means content is not completed
+    return false;
+  }
+};
