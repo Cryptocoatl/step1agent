@@ -54,7 +54,7 @@ export const Step1Token = ({
       variants={tokenAnimation}
     >
       <motion.img 
-        src="/lovable-uploads/65b20565-5941-4f85-a87a-cbb7712bb60c.png"
+        src="/lovable-uploads/be356566-cac6-4c00-a7a0-034048b502b1.png"
         alt="STEP1 Token"
         className={cn(sizeMap[size], "drop-shadow-lg")}
         variants={spinAnimation}
@@ -62,7 +62,7 @@ export const Step1Token = ({
       />
       {animated && (
         <motion.div 
-          className="absolute inset-0 bg-yellow-400/20 rounded-full blur-xl -z-10"
+          className="absolute inset-0 bg-amber-400/20 rounded-full blur-xl -z-10"
           animate={{
             opacity: [0.5, 0.8, 0.5],
             scale: [0.8, 1.1, 0.8],
