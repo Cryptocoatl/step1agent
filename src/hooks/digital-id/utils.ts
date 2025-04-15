@@ -1,6 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
-import { connectWallet, getConnectedWallets } from "@/services/wallet/walletConnectionService";
+import { connectWallet } from "@/services/wallet/walletConnectionService";
+import { getConnectedWallets } from "@/services/wallet/walletQueryService";
 import { awardTokens } from "@/services/rewardsService";
 import { toast } from "@/hooks/use-toast";
 import { User } from "@supabase/supabase-js";
