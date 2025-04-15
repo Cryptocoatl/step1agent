@@ -36,7 +36,7 @@ export function useSupabaseAuth() {
                 .eq('id', session.user.id)
                 .single();
                 
-              // If new sign-up and email is verified, navigate to digital-id
+              // If new sign-up and email is verified, prepare for digital-id
               if (event === 'SIGNED_IN' && session.user.email_confirmed_at) {
                 // If this is a new user that just confirmed email
                 if (!profileData?.display_name) {
@@ -44,7 +44,6 @@ export function useSupabaseAuth() {
                     title: "Email verified successfully",
                     description: "Your STEP1 Digital ID is being set up",
                   });
-                  // We'll handle navigation in the component using this information
                 }
               }
             } catch (error) {

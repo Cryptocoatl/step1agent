@@ -4,18 +4,20 @@ import { toast } from '@/hooks/use-toast';
 
 export async function signIn(email: string, password: string) {
   try {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     
     if (error) {
       throw error;
     }
+    
+    return { data, error: null };
   } catch (error: any) {
     toast({
       title: "Sign in failed",
       description: error.message,
       variant: "destructive"
     });
-    throw error;
+    return { data: null, error };
   }
 }
 
@@ -24,7 +26,7 @@ export async function signUp(email: string, password: string, metadata?: any) {
     // Get the current URL origin
     const redirectUrl = `${window.location.origin}/auth?verified=true`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { 
@@ -41,13 +43,15 @@ export async function signUp(email: string, password: string, metadata?: any) {
       title: "Verification email sent",
       description: "Please check your email to verify your account"
     });
+    
+    return { data, error: null };
   } catch (error: any) {
     toast({
       title: "Sign up failed",
       description: error.message,
       variant: "destructive"
     });
-    throw error;
+    return { data: null, error };
   }
 }
 
@@ -58,19 +62,21 @@ export async function signOut() {
     if (error) {
       throw error;
     }
+    
+    return { error: null };
   } catch (error: any) {
     toast({
       title: "Sign out failed",
       description: error.message,
       variant: "destructive"
     });
-    throw error;
+    return { error };
   }
 }
 
 export async function resetPassword(email: string) {
   try {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     
@@ -82,19 +88,21 @@ export async function resetPassword(email: string) {
       title: "Password reset email sent",
       description: "Please check your email for the reset link"
     });
+    
+    return { data, error: null };
   } catch (error: any) {
     toast({
       title: "Password reset failed",
       description: error.message,
       variant: "destructive"
     });
-    throw error;
+    return { data: null, error };
   }
 }
 
 export async function resendVerificationEmail(email: string) {
   try {
-    const { error } = await supabase.auth.resend({
+    const { data, error } = await supabase.auth.resend({
       type: 'signup',
       email,
       options: {
@@ -111,13 +119,28 @@ export async function resendVerificationEmail(email: string) {
       description: `A new verification email has been sent to ${email}`
     });
     
-    return true;
+    return { data, error: null };
   } catch (error: any) {
     toast({
       title: "Failed to send verification email",
       description: error.message,
       variant: "destructive"
     });
-    throw error;
+    return { data: null, error };
+  }
+}
+
+export async function checkUserSession() {
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    
+    if (error) {
+      throw error;
+    }
+    
+    return { session: data.session, error: null };
+  } catch (error: any) {
+    console.error("Error checking user session:", error);
+    return { session: null, error };
   }
 }
