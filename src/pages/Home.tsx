@@ -25,7 +25,7 @@ export default function HomePage() {
   }, [user]);
 
   return (
-    <RootLayout>
+    <div className="min-h-screen flex flex-col">
       <div className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="flex flex-col lg:flex-row items-center gap-8 mb-16">
@@ -146,6 +146,6 @@ export default function HomePage() {
         {/* Missions & Projects Section */}
         <HeroMissionsSection />
       </div>
-    </RootLayout>
+    </div>
   );
 }
