@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { StepOneAgent } from "./StepOneAgent";
 import { Bot, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,20 +20,22 @@ export const StepOneAgentButton = () => {
       </Button>
 
       {/* Dialog for agent */}
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[450px] p-0 bg-transparent border-none shadow-none overflow-visible">
-          <div className="relative">
-            <Button
-              onClick={() => setIsOpen(false)}
-              className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-accent hover:bg-accent/90 shadow-lg z-50 flex items-center justify-center p-0"
-              aria-label="Close agent chat"
-            >
-              <X size={18} />
-            </Button>
-            <StepOneAgent className="w-full" />
-          </div>
-        </DialogContent>
-      </Dialog>
+      {isOpen && (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogContent className="sm:max-w-[450px] p-0 bg-transparent border-none shadow-none overflow-visible">
+            <div className="relative">
+              <Button
+                onClick={() => setIsOpen(false)}
+                className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-accent hover:bg-accent/90 shadow-lg z-50 flex items-center justify-center p-0"
+                aria-label="Close agent chat"
+              >
+                <X size={18} />
+              </Button>
+              <StepOneAgent className="w-full" onClose={() => setIsOpen(false)} />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };

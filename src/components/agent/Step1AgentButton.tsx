@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Step1Agent } from "./Step1Agent";
 import { Bot, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,20 +20,22 @@ export const Step1AgentButton = () => {
       </Button>
 
       {/* Dialog for agent */}
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[85vw] md:max-w-[75vw] lg:max-w-[65vw] xl:max-w-[50vw] p-0 bg-transparent border-none shadow-none overflow-visible max-h-[90vh]">
-          <div className="relative h-[80vh]">
-            <Button
-              onClick={() => setIsOpen(false)}
-              className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-accent hover:bg-accent/90 shadow-lg z-50 flex items-center justify-center p-0"
-              aria-label="Close agent chat"
-            >
-              <X size={18} />
-            </Button>
-            <Step1Agent className="w-full h-full" onClose={() => setIsOpen(false)} />
-          </div>
-        </DialogContent>
-      </Dialog>
+      {isOpen && (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogContent className="sm:max-w-[85vw] md:max-w-[75vw] lg:max-w-[65vw] xl:max-w-[50vw] p-0 bg-transparent border-none shadow-none overflow-visible max-h-[90vh]">
+            <div className="relative h-[80vh]">
+              <Button
+                onClick={() => setIsOpen(false)}
+                className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-accent hover:bg-accent/90 shadow-lg z-50 flex items-center justify-center p-0"
+                aria-label="Close agent chat"
+              >
+                <X size={18} />
+              </Button>
+              <Step1Agent className="w-full h-full" onClose={() => setIsOpen(false)} />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };

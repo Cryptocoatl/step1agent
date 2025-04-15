@@ -14,6 +14,7 @@ interface Message {
 
 interface StepOneAgentProps extends React.HTMLAttributes<HTMLDivElement> {
   fullscreen?: boolean;
+  onClose?: () => void;
 }
 
 // Create a singleton messages array to persist messages between component mounts
@@ -26,7 +27,7 @@ let globalMessages: Message[] = [
   },
 ];
 
-const StepOneAgent = ({ className, fullscreen = false, ...props }: StepOneAgentProps) => {
+const StepOneAgent = ({ className, fullscreen = false, onClose, ...props }: StepOneAgentProps) => {
   const [messages, setMessages] = useState<Message[]>(globalMessages);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -94,7 +95,7 @@ const StepOneAgent = ({ className, fullscreen = false, ...props }: StepOneAgentP
     )} {...props}>
       <GlassPanel
         className="overflow-hidden transition-all duration-300 h-full w-full"
-        intensity="medium"
+        variant="dark"
       >
         {/* Header */}
         <div className="p-4 border-b border-border flex items-center justify-between bg-secondary/50">

@@ -72,7 +72,7 @@ const HeroProfileStats = () => {
   const progressPercent = (stats.exp / stats.nextLevel) * 100;
   
   return (
-    <GlassPanel className="p-6 relative overflow-hidden" intensity="medium">
+    <GlassPanel className="p-6 relative overflow-hidden" variant="dark">
       {/* Decorative cosmic elements */}
       <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-accent/5 -translate-y-1/2 translate-x-1/4"></div>
       <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-accent/5 translate-y-1/3 -translate-x-1/4"></div>

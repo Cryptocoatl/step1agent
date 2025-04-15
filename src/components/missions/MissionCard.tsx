@@ -118,7 +118,7 @@ export const MissionCard = ({ mission, className, onMissionAction }: MissionCard
           "transition-all duration-300",
           mission.impact === "global" && "border-t-2 border-t-purple-500"
         )}
-        glow={isHovered}
+        variant={isHovered ? "light" : "default"}
       >
         <div className="p-6 h-full flex flex-col">
           {/* Header with hero mission styling */}
