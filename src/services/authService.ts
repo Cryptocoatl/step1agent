@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -142,5 +141,25 @@ export async function checkUserSession() {
   } catch (error: any) {
     console.error("Error checking user session:", error);
     return { session: null, error };
+  }
+}
+
+export async function createUserProfile(userId: string, displayName: string) {
+  try {
+    const { error } = await supabase
+      .from('profiles')
+      .insert({
+        id: userId,
+        display_name: displayName
+      });
+    
+    if (error) {
+      throw error;
+    }
+    
+    return { error: null };
+  } catch (error: any) {
+    console.error("Error creating user profile:", error);
+    return { error };
   }
 }

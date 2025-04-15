@@ -10,6 +10,7 @@ import DigitalID from '@/pages/DigitalID';
 import DAO from '@/pages/DAO';
 import DAOGovernance from '@/pages/DAOGovernance';
 import Learn from '@/pages/Learn';
+import Tokenomics from '@/pages/Tokenomics';
 import Admin from '@/pages/Admin';
 import NotFound from '@/pages/NotFound';
 import { useAuth } from '@/providers/SupabaseAuthProvider';
@@ -40,12 +41,14 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Auth />} />
+        <Route path="/auth" element={<Auth />} />
         <Route path="/wallet" element={<Wallet />} />
         <Route path="/wallet-dashboard" element={<WalletDashboard />} />
         <Route path="/digital-id" element={<DigitalID />} />
         <Route path="/dao" element={<DAO />} />
         <Route path="/dao-governance" element={<DAOGovernance />} />
         <Route path="/learn" element={<Learn />} />
+        <Route path="/learn/tokenomics" element={<Tokenomics />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/step1-agent" element={<Step1AgentPage />} />
         <Route path="*" element={<NotFound />} />

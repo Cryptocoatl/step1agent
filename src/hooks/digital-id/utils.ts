@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { connectWallet, getConnectedWallets } from "@/services/walletService";
+import { connectWallet, getConnectedWallets } from "@/services/wallet/walletConnectionService";
 import { awardTokens } from "@/services/rewardsService";
 import { toast } from "@/hooks/use-toast";
 import { User } from "@supabase/supabase-js";
@@ -33,9 +33,11 @@ export const createICPWalletIfNeeded = async (user: User | null, isEmailVerified
   try {
     // Only create wallet if user doesn't have one already
     const wallets = await getConnectedWallets();
-    const hasICPWallet = wallets.some(wallet => wallet.chain_type === 'ICP');
+    const hasICPWallet = wallets.some(wallet => wallet.chain_type === 'icp');
     
     if (!hasICPWallet) {
+      console.log("Creating ICP wallet for user:", user.id);
+      
       // Generate a deterministic "simulated" ICP address based on the user's email
       // In a real implementation, this would call the ICP canister to create a real wallet
       const emailHash = user.email ? 
@@ -51,24 +53,37 @@ export const createICPWalletIfNeeded = async (user: User | null, isEmailVerified
         // Format as ICP address
         const icpAddress = `${hashHex.substring(0, 8)}-${hashHex.substring(8, 16)}`;
         
+        console.log("Generated ICP address:", icpAddress);
+        
         // Connect the wallet
-        await connectWallet(icpAddress, 'Smart Wallet', 'ICP');
+        const connected = await connectWallet(icpAddress, 'Smart Wallet', 'icp');
         
-        toast({
-          title: "ICP Smart Wallet Created",
-          description: "Your STEP1 Identity is now connected to your ICP wallet"
-        });
-        
-        // Award tokens for connecting wallet
-        await awardTokens(
-          'wallet_connect',
-          10,
-          'Smart Wallet created and connected to your STEP1 identity'
-        );
+        if (connected) {
+          console.log("ICP wallet connected successfully");
+          
+          toast({
+            title: "ICP Smart Wallet Created",
+            description: "Your STEP1 Identity is now connected to your ICP wallet"
+          });
+          
+          // Award tokens for connecting wallet
+          await awardTokens(
+            'wallet_connect',
+            10,
+            'Smart Wallet created and connected to your STEP1 identity'
+          );
+          
+          return true;
+        }
       }
+    } else {
+      console.log("User already has an ICP wallet");
     }
+    
+    return false;
   } catch (error) {
     console.error("Error creating ICP wallet:", error);
+    return false;
   }
 };
 

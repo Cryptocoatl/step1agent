@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { connectWallet } from '@/services/wallet/walletConnectionService';
+import { awardTokens } from '@/services/rewardsService';
 
 export function useSupabaseAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -44,6 +46,37 @@ export function useSupabaseAuth() {
                     title: "Email verified successfully",
                     description: "Your STEP1 Digital ID is being set up",
                   });
+                  
+                  // Create user profile if it doesn't exist
+                  if (!profileData) {
+                    const defaultName = session.user.email?.split('@')[0] || "STEP1 User";
+                    await supabase
+                      .from('profiles')
+                      .insert({
+                        id: session.user.id,
+                        display_name: defaultName
+                      });
+                  }
+                  
+                  // Generate ICP wallet for new verified users
+                  // Generate a deterministic "simulated" ICP address based on the user's id
+                  const walletAddress = `icp-${session.user.id.substring(0, 8)}`;
+                  
+                  // Connect the wallet
+                  const walletConnected = await connectWallet(
+                    walletAddress,
+                    'Smart Wallet',
+                    'icp'
+                  );
+                  
+                  // Award tokens for completing verification
+                  if (walletConnected) {
+                    await awardTokens(
+                      'account_verification',
+                      25,
+                      'Welcome reward for verifying your account'
+                    );
+                  }
                 }
               }
             } catch (error) {
