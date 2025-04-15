@@ -12,6 +12,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any | null, data: any | null }>;
   signUp: (email: string, password: string) => Promise<{ error: any | null, data: any | null }>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: any | null, data: any | null }>;
   updateProfile: (profileData: any) => Promise<{ error: any | null, data: any | null }>;
 }
 
@@ -33,6 +34,13 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
   // Sign out
   const signOut = async () => {
     await supabase.auth.signOut();
+  };
+  
+  // Reset password
+  const resetPassword = async (email: string) => {
+    return await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
   };
   
   // Update user profile
@@ -57,6 +65,7 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
     signIn,
     signUp,
     signOut,
+    resetPassword,
     updateProfile
   };
   

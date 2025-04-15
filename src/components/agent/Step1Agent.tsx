@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { GlassPanel } from "@/components/ui/GlassPanel";
@@ -6,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { 
   Bot, Send, ArrowRight, Book, Code, Wallet, Users, Terminal, 
   Globe, ArrowUpRight, RefreshCw, PlusCircle, Sparkles,
-  Languages, VideoIcon, Award, Zap, Leaf, Heart
+  Languages, VideoIcon, Award, Zap, Leaf, Heart, X
 } from "lucide-react";
 import { AnimatedCard } from "@/components/ui/AnimatedCard";
 import { useAuth } from "@/providers/SupabaseAuthProvider";
@@ -32,7 +31,6 @@ interface Step1AgentProps extends React.HTMLAttributes<HTMLDivElement> {
   onClose?: () => void;
 }
 
-// Create a memory store for agent messages that persists between component mounts
 let globalMessages: Message[] = [
   {
     id: "welcome",
@@ -52,7 +50,6 @@ export const Step1Agent = ({ className, fullscreen = false, onClose, ...props }:
   const [selectedLanguage, setSelectedLanguage] = useState<"en" | "es" | "fr" | "pt" | "it">("en");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Define agent capabilities
   const capabilities: Capability[] = [
     {
       id: "blockchain",
@@ -111,22 +108,19 @@ export const Step1Agent = ({ className, fullscreen = false, onClose, ...props }:
     }
   ];
 
-  // Update the global messages when local messages change
   useEffect(() => {
     globalMessages = messages;
   }, [messages]);
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  // Language translations for the welcome message
   const welcomeMessages = {
     en: "Hello! I'm your Step1 Agent. I can help you manage digital identities, cross-chain integrations, DAO governance, and regenerative projects. How can I assist your planetary mission today?",
     es: "¡Hola! Soy tu Agente Step1. Puedo ayudarte a gestionar identidades digitales, integraciones cross-chain, gobernanza DAO y proyectos regenerativos. ¿Cómo puedo asistir tu misión planetaria hoy?",
     fr: "Bonjour! Je suis votre Agent Step1. Je peux vous aider à gérer les identités numériques, les intégrations multi-chaînes, la gouvernance DAO et les projets régénératifs. Comment puis-je soutenir votre mission planétaire aujourd'hui?",
-    pt: "Olá! Sou seu Agente Step1. Posso ajudar a gerenciar identidades digitais, integrações cross-chain, governança DAO e projetos regenerativos. Como posso auxiliar sua missão planetária hoje?",
+    pt: "Olá! Sou seu Agente Step1. Posso ajudar a gerenciar identidades digitais, integrações cross-chain, governança DAO e projetos regenerativos. Como posso auxiliar sua missão planetaria hoje?",
     it: "Ciao! Sono il tuo Agente Step1. Posso aiutarti a gestire identità digitali, integrazioni cross-chain, governance DAO e progetti rigenerativi. Come posso assistere la tua missione planetaria oggi?"
   };
 
@@ -144,7 +138,6 @@ export const Step1Agent = ({ className, fullscreen = false, onClose, ...props }:
     setInputValue("");
     setIsTyping(true);
     
-    // Detect language category based on user message
     const detectCategory = (message: string): Message["category"] => {
       message = message.toLowerCase();
       if (message.includes("wallet") || message.includes("contract") || message.includes("icp") || 
@@ -166,13 +159,11 @@ export const Step1Agent = ({ className, fullscreen = false, onClose, ...props }:
       return "general";
     };
 
-    // Generate intelligent response based on message content
     setTimeout(() => {
       const category = detectCategory(inputValue);
       
       let response = "";
       
-      // Process message semantically to generate appropriate response
       if (inputValue.toLowerCase().includes("identity") || inputValue.toLowerCase().includes("digital id")) {
         response = "Digital Identity is the cornerstone of web3 participation. I can help you set up your ICP identity canister which will allow portability across chains. Would you like me to guide you through creating a secure, cross-chain digital identity?";
       } else if (inputValue.toLowerCase().includes("wallet") || inputValue.toLowerCase().includes("connect")) {
@@ -186,7 +177,6 @@ export const Step1Agent = ({ className, fullscreen = false, onClose, ...props }:
       } else if (inputValue.toLowerCase().includes("hello") || inputValue.toLowerCase().includes("hi") || inputValue.toLowerCase().includes("hey")) {
         response = "Welcome to the regenerative digital economy! I'm here to help you navigate blockchain for planet-positive impact. I can assist with digital identity, wallet setup, DAO governance, regenerative projects, and community building. What would you like to focus on today?";
       } else {
-        // Generate response based on category
         const responses = {
           blockchain: [
             "I can help you navigate the blockchain infrastructure for regenerative projects. Would you like to learn about smart contracts on ICP, wallet integrations, or tokenomics?",
@@ -214,7 +204,6 @@ export const Step1Agent = ({ className, fullscreen = false, onClose, ...props }:
           ]
         };
         
-        // Select a random response from the appropriate category
         const categoryResponses = responses[category] || responses.general;
         response = categoryResponses[Math.floor(Math.random() * categoryResponses.length)];
       }
@@ -242,7 +231,6 @@ export const Step1Agent = ({ className, fullscreen = false, onClose, ...props }:
   const handleLanguageChange = (language: "en" | "es" | "fr" | "pt" | "it") => {
     setSelectedLanguage(language);
     
-    // Update the welcome message
     const updatedMessages = [...messages];
     const welcomeIndex = updatedMessages.findIndex(msg => msg.id === "welcome");
     
@@ -270,7 +258,6 @@ export const Step1Agent = ({ className, fullscreen = false, onClose, ...props }:
         className="overflow-hidden transition-all duration-300 h-full w-full"
         intensity="medium"
       >
-        {/* Header */}
         <div className="p-4 border-b border-border flex items-center justify-between bg-secondary/50">
           <div className="flex items-center space-x-3">
             <div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center">
@@ -311,7 +298,6 @@ export const Step1Agent = ({ className, fullscreen = false, onClose, ...props }:
           </div>
         </div>
         
-        {/* Messages */}
         <div className="p-4 overflow-auto h-[calc(100%-8rem)]">
           <div className="space-y-4">
             {messages.map((message) => (
@@ -347,7 +333,6 @@ export const Step1Agent = ({ className, fullscreen = false, onClose, ...props }:
           </div>
         </div>
         
-        {/* Quick Actions & Input */}
         <div className="p-4 border-t border-border bg-secondary/30">
           {showCapabilities && (
             <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-2">
