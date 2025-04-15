@@ -1,167 +1,64 @@
 
+import { Actor, ActorSubclass, Identity } from "@dfinity/agent";
 import { AuthClient } from "@dfinity/auth-client";
-import { HttpAgent, Identity } from "@dfinity/agent";
-import { createActor as createBackendActor } from "@/declarations/backend";
-import { createActor as createDigitalIdentityManagerActor } from "@/declarations/digital_identity_manager";
-import { LOCAL_CANISTERS, HOST } from "@/config/canister.config";
+import { backend } from "@/declarations/backend";
+import { _SERVICE } from "@/declarations/backend/backend.did";
 
-// Initialize a global AuthClient
+// Initialize auth client
 let authClient: AuthClient | null = null;
 
-// State to cache authentication info
-let authState = {
-  isAuthenticated: false,
-  identity: null as Identity | null,
+// Get the backend actor
+export const getBackendActor = async (): Promise<ActorSubclass<_SERVICE>> => {
+  return backend;
 };
 
-// Initialize the auth client
-export const initAuth = async (): Promise<AuthClient> => {
+// Initialize auth client
+const initAuthClient = async (): Promise<AuthClient> => {
   if (!authClient) {
     authClient = await AuthClient.create();
-    
-    // Check if user is already authenticated
-    if (await authClient.isAuthenticated()) {
-      authState.isAuthenticated = true;
-      authState.identity = authClient.getIdentity();
-      console.log("User already authenticated with identity:", authState.identity);
-    }
   }
   return authClient;
 };
 
 // Login with Internet Identity
 export const login = async (): Promise<boolean> => {
-  try {
-    const client = await initAuth();
-
-    // Check if already authenticated
-    if (await client.isAuthenticated()) {
-      console.log("User is already authenticated");
-      authState.isAuthenticated = true;
-      authState.identity = client.getIdentity();
-      return true;
-    }
-
-    return new Promise<boolean>((resolve) => {
-      client.login({
-        identityProvider: process.env.II_URL || 'https://identity.ic0.app',
-        onSuccess: () => {
-          console.log("Successfully logged in");
-          authState.isAuthenticated = true;
-          authState.identity = client.getIdentity();
-          resolve(true);
-        },
-        onError: (error) => {
-          console.error("Login failed:", error);
-          resolve(false);
-        },
-      });
+  const client = await initAuthClient();
+  
+  return new Promise((resolve) => {
+    client.login({
+      identityProvider: "https://identity.ic0.app",
+      onSuccess: () => resolve(true),
+      onError: (error) => {
+        console.error("Login error:", error);
+        resolve(false);
+      },
     });
-  } catch (error) {
-    console.error("Error during login:", error);
-    return false;
-  }
+  });
 };
 
-// Logout from Internet Identity
+// Logout
 export const logout = async (): Promise<void> => {
-  try {
-    const client = await initAuth();
-    await client.logout();
-    authState.isAuthenticated = false;
-    authState.identity = null;
-    console.log("Successfully logged out");
-  } catch (error) {
-    console.error("Error during logout:", error);
-  }
+  const client = await initAuthClient();
+  await client.logout();
 };
 
-// Get current authentication state
+// Get auth state
 export const getAuthState = async (): Promise<{
   isAuthenticated: boolean;
   identity: Identity | null;
 }> => {
-  if (!authClient) {
-    await initAuth();
-  }
-  return authState;
+  const client = await initAuthClient();
+  const isAuthenticated = await client.isAuthenticated();
+  const identity = isAuthenticated ? client.getIdentity() : null;
+  
+  return {
+    isAuthenticated,
+    identity,
+  };
 };
 
-// Create an authenticated actor for the Backend canister
-export const getBackendActor = async () => {
-  try {
-    const client = await initAuth();
-    
-    // Create an agent with the user's identity or an anonymous one
-    const agent = new HttpAgent({
-      host: HOST,
-      identity: client.getIdentity(),
-    });
-    
-    // Fetch the root key when in development mode
-    if (import.meta.env.VITE_DFX_NETWORK !== "ic") {
-      // Set global for CBOR decoder if needed
-      if (typeof window !== 'undefined' && !window.global) {
-        window.global = window;
-      }
-      
-      await agent.fetchRootKey();
-    }
-    
-    // Create the actor with the agent
-    const actor = createBackendActor(LOCAL_CANISTERS.backend, {
-      agent,
-    });
-    
-    return actor;
-  } catch (error) {
-    console.error("Error getting backend actor:", error);
-    throw error;
-  }
-};
-
-// Create an authenticated actor for the Digital Identity Manager canister
-export const getDigitalIdentityManagerActor = async () => {
-  try {
-    const client = await initAuth();
-    
-    // Create an agent with the user's identity or an anonymous one
-    const agent = new HttpAgent({
-      host: HOST,
-      identity: client.getIdentity(),
-    });
-    
-    // Fetch the root key when in development mode
-    if (import.meta.env.VITE_DFX_NETWORK !== "ic") {
-      // Set global for CBOR decoder if needed
-      if (typeof window !== 'undefined' && !window.global) {
-        window.global = window;
-      }
-      
-      await agent.fetchRootKey();
-    }
-    
-    // Create the actor with the agent
-    const actor = createDigitalIdentityManagerActor(LOCAL_CANISTERS.digital_identity_manager, {
-      agent,
-    });
-    
-    return actor;
-  } catch (error) {
-    console.error("Error getting digital identity manager actor:", error);
-    throw error;
-  }
-};
-
-// Check if the canister methods are available
-export const checkCanisterConnection = async (): Promise<boolean> => {
-  try {
-    const actor = await getBackendActor();
-    const response = await actor.heartbeat();
-    console.log("Canister connection check result:", response);
-    return true;
-  } catch (error) {
-    console.error("Canister connection check failed:", error);
-    return false;
-  }
+// Get principal ID
+export const getPrincipal = async (): Promise<string | null> => {
+  const { isAuthenticated, identity } = await getAuthState();
+  return isAuthenticated && identity ? identity.getPrincipal().toText() : null;
 };

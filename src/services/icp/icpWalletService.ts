@@ -1,80 +1,112 @@
 
 import { toast } from "@/hooks/use-toast";
-import { Principal } from "@dfinity/principal";
-import { ICPWallet, WalletType } from "./types";
-import { walletImplementations } from "./walletAdapters";
 
-// Check which wallets are available in the browser
-export const getAvailableWallets = (): ICPWallet[] => {
-  return Object.values(walletImplementations).filter(wallet => {
-    try {
-      return wallet.isAvailable();
-    } catch (e) {
-      return false;
+export type WalletType = 'plug' | 'stoic' | 'bitfinity' | 'infinityswap' | 'nfid';
+
+export const getAvailableWallets = () => {
+  const wallets = [
+    {
+      type: 'plug' as WalletType,
+      name: 'Plug Wallet',
+      icon: 'https://plugwallet.ooo/assets/images/plug-logo.svg',
+      description: 'Browser extension',
+      url: 'https://plugwallet.ooo/',
+      available: typeof (window as any).ic?.plug !== 'undefined'
+    },
+    {
+      type: 'bitfinity' as WalletType,
+      name: 'Bitfinity Wallet',
+      icon: 'https://bitfinity.network/logo.svg',
+      description: 'Browser extension',
+      url: 'https://bitfinity.network/',
+      available: typeof (window as any).ic?.bitfinity !== 'undefined'
+    },
+    {
+      type: 'nfid' as WalletType,
+      name: 'NFID',
+      icon: 'https://nfid.one/images/nfid-logo.svg',
+      description: 'Internet Identity',
+      url: 'https://nfid.one/',
+      available: true
     }
-  });
+  ];
+  
+  return wallets.filter(wallet => wallet.available);
 };
 
-// Connect to a specific wallet
-export const connectWallet = async (walletType: WalletType): Promise<string | null> => {
-  const wallet = walletImplementations[walletType];
+// Connect to a wallet and get the principal ID
+export const connectWallet = async (walletType: WalletType): Promise<string> => {
+  const whitelist = [
+    "bd3sg-teaaa-aaaaa-qaaba-cai", // Backend canister
+    "be2us-64aaa-aaaaa-qaabq-cai", // Cross-chain wallet adapter
+  ];
   
-  if (!wallet) {
-    toast({
-      title: "Wallet not supported",
-      description: "The selected wallet is not supported.",
-      variant: "destructive"
-    });
-    return null;
-  }
+  const host = "https://icp-api.io";
   
-  try {
-    const principalId = await wallet.connect();
-    
-    // Validate the principal ID
-    try {
-      if (principalId && principalId !== "2vxsx-fae" && principalId !== "rdmx6-jaaaa-aaaaa-aaadq-cai") {
-        // Only validate non-placeholder principals
-        Principal.fromText(principalId); // Will throw if invalid
+  switch (walletType) {
+    case 'plug':
+      if (!(window as any).ic?.plug) {
+        throw new Error('Plug wallet extension not found. Please install Plug wallet.');
       }
       
-      toast({
-        title: "Wallet Connected",
-        description: `Successfully connected to ${wallet.name}`
-      });
+      try {
+        const connected = await (window as any).ic.plug.requestConnect({
+          whitelist,
+          host
+        });
+        
+        if (!connected) {
+          throw new Error('Failed to connect to Plug wallet.');
+        }
+        
+        const principal = await (window as any).ic.plug.agent.getPrincipal();
+        return principal.toText();
+      } catch (error) {
+        console.error('Error connecting to Plug wallet:', error);
+        throw new Error('Failed to connect to Plug wallet. Please try again.');
+      }
       
-      return principalId;
-    } catch (error) {
-      console.error("Invalid principal ID:", error);
-      toast({
-        title: "Invalid Principal ID",
-        description: "The wallet returned an invalid principal ID.",
-        variant: "destructive"
-      });
-      return null;
-    }
-  } catch (error) {
-    console.error(`Error connecting to ${wallet.name}:`, error);
-    
-    toast({
-      title: "Connection Failed",
-      description: (error as Error).message || `Failed to connect to ${wallet.name}`,
-      variant: "destructive"
-    });
-    
-    return null;
+    case 'bitfinity':
+      if (!(window as any).ic?.bitfinity) {
+        throw new Error('Bitfinity wallet extension not found. Please install Bitfinity wallet.');
+      }
+      
+      try {
+        const connected = await (window as any).ic.bitfinity.requestConnect({
+          whitelist,
+          host
+        });
+        
+        if (!connected) {
+          throw new Error('Failed to connect to Bitfinity wallet.');
+        }
+        
+        const principal = await (window as any).ic.bitfinity.getPrincipal();
+        return principal.toString();
+      } catch (error) {
+        console.error('Error connecting to Bitfinity wallet:', error);
+        throw new Error('Failed to connect to Bitfinity wallet. Please try again.');
+      }
+      
+    case 'nfid':
+      // For NFID, we'll use Internet Identity flow which is handled in icpService.ts
+      // This is a placeholder for now
+      try {
+        // Generate a mock principal for demo purposes
+        const mockPrincipal = `nfid-${Math.random().toString(36).substring(2, 10)}`;
+        
+        toast({
+          title: "NFID Integration",
+          description: "NFID integration would launch Internet Identity here in production."
+        });
+        
+        return mockPrincipal;
+      } catch (error) {
+        console.error('Error connecting to NFID:', error);
+        throw new Error('Failed to connect to NFID. Please try again.');
+      }
+      
+    default:
+      throw new Error(`Wallet type '${walletType}' not supported.`);
   }
 };
-
-// Utility to get wallet info by type
-export const getWalletInfo = (walletType: WalletType): ICPWallet => {
-  return walletImplementations[walletType];
-};
-
-// Utility to check if a specific wallet is installed
-export const isWalletInstalled = (walletType: WalletType): boolean => {
-  return walletImplementations[walletType].isAvailable();
-};
-
-// Re-export the WalletType for ease of use
-export type { WalletType } from "./types";
