@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
 import { SupabaseAuthProvider } from './providers/SupabaseAuthProvider'
+import { WalletProvider } from './providers/WalletProvider'
 
 // Ensure all global styles are loaded
 import './styles/globals.css'
@@ -19,7 +20,9 @@ if (!rootElement) {
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <SupabaseAuthProvider>
-      <App />
+      <WalletProvider>
+        <App />
+      </WalletProvider>
     </SupabaseAuthProvider>
   </React.StrictMode>
 )
