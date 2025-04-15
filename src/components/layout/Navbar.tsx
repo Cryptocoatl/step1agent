@@ -8,6 +8,7 @@ const routes = [
   { name: "Wallet", path: "/wallet" },
   { name: "DAO", path: "/dao" },
   { name: "Learn", path: "/learn" },
+  { name: "Whitepaper", path: "/whitepaper" },
   { name: "Step1 Agent", path: "/step1-agent" },
 ];
 
@@ -23,6 +24,7 @@ export default function Navbar() {
           <Link to="/wallet">Wallet</Link>
           <Link to="/dao">DAO</Link>
           <Link to="/learn">Learn</Link>
+          <Link to="/whitepaper">Whitepaper</Link>
           <Link to="/step1-agent">Step1 Agent</Link>
         </nav>
         <WalletConnect />

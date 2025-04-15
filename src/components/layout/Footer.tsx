@@ -26,6 +26,9 @@ export default function Footer() {
             <Link to="/learn" className="text-amber-200/70 hover:text-amber-100 transition-colors">
               Learn
             </Link>
+            <Link to="/whitepaper" className="text-amber-200/70 hover:text-amber-100 transition-colors">
+              Whitepaper
+            </Link>
             <Link to="/step1-agent" className="text-amber-200/70 hover:text-amber-100 transition-colors">
               Step1 Agent
             </Link>

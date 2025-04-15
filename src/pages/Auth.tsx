@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/providers/SupabaseAuthProvider";
 import { Button } from "@/components/ui/button";
@@ -137,7 +138,13 @@ const Auth = () => {
 
   const onLoginSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
-      await signIn(values.email, values.password);
+      const result = await signIn(values.email, values.password);
+      if (!result.error && result.data) {
+        toast({
+          title: "Login successful",
+          description: "Welcome to STEP1!"
+        });
+      }
     } catch (error) {
       console.error("Login error:", error);
     }
@@ -145,9 +152,15 @@ const Auth = () => {
 
   const onSignupSubmit = async (values: z.infer<typeof signupSchema>) => {
     try {
-      await signUp(values.email, values.password);
-      setEmailVerificationSent(true);
-      setVerificationEmail(values.email);
+      const result = await signUp(values.email, values.password);
+      if (!result.error && result.data) {
+        setEmailVerificationSent(true);
+        setVerificationEmail(values.email);
+        toast({
+          title: "Account created",
+          description: "Please check your email to verify your account."
+        });
+      }
     } catch (error) {
       console.error("Signup error:", error);
     }
@@ -157,6 +170,10 @@ const Auth = () => {
     try {
       await resetPassword(values.email);
       setShowReset(false);
+      toast({
+        title: "Password reset email sent",
+        description: "Please check your email for the reset link."
+      });
     } catch (error) {
       console.error("Reset error:", error);
     }
@@ -167,11 +184,16 @@ const Auth = () => {
     
     try {
       await resendVerificationEmail(verificationEmail);
+      toast({
+        title: "Verification email resent",
+        description: "Please check your inbox or spam folder."
+      });
     } catch (error) {
       console.error("Failed to resend verification:", error);
     }
   };
 
+  // Redirect authenticated users to digital-id if not verifying or already on digital-id page
   if (user && !isVerified && !isProcessingAuth) {
     return <Navigate to="/digital-id" replace />;
   }

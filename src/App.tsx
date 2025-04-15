@@ -16,6 +16,7 @@ import NotFound from '@/pages/NotFound';
 import { useAuth } from '@/providers/SupabaseAuthProvider';
 import { Step1AgentButton } from "@/components/agent/Step1AgentButton";
 import Step1AgentPage from "@/pages/Step1Agent";
+import Whitepaper from '@/pages/Whitepaper';
 
 // Create a wrapper component that uses the router-dependent hooks
 const AppRoutes = () => {
@@ -50,6 +51,7 @@ const AppRoutes = () => {
         <Route path="/dao-governance" element={<DAOGovernance />} />
         <Route path="/learn" element={<Learn />} />
         <Route path="/learn/tokenomics" element={<Tokenomics />} />
+        <Route path="/whitepaper" element={<Whitepaper />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/step1-agent" element={<Step1AgentPage />} />
         <Route path="*" element={<NotFound />} />

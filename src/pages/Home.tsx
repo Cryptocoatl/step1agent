@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { AnimatedCard } from '@/components/ui/AnimatedCard';
@@ -75,9 +74,9 @@ export default function HomePage() {
                 size="sm" 
                 className="border-amber-500/30 text-amber-100 hover:bg-amber-500/10 flex items-center gap-2"
               >
-                <a href="/whitepaper.pdf" target="_blank" rel="noopener noreferrer">
+                <Link to="/whitepaper">
                   <FileText className="h-4 w-4" /> Read our Whitepaper
-                </a>
+                </Link>
               </Button>
             </div>
             
