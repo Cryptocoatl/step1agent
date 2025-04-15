@@ -1,7 +1,7 @@
 
 import { toast } from "@/hooks/use-toast";
 
-export type WalletType = 'plug' | 'stoic' | 'bitfinity' | 'infinityswap' | 'nfid';
+export type WalletType = 'plug' | 'stoic' | 'bitfinity' | 'infinity' | 'nfid';
 
 export const getAvailableWallets = () => {
   const wallets = [
@@ -104,6 +104,30 @@ export const connectWallet = async (walletType: WalletType): Promise<string> => 
       } catch (error) {
         console.error('Error connecting to NFID:', error);
         throw new Error('Failed to connect to NFID. Please try again.');
+      }
+    
+    case 'infinity':
+      try {
+        if (!(window as any).ic?.infinityWallet) {
+          window.open('https://wallet.infinityswap.one/', '_blank');
+          throw new Error('Infinity wallet not installed');
+        }
+        
+        // Connect to Infinity wallet
+        const connected = await (window as any).ic.infinityWallet.requestConnect({
+          whitelist,
+          host
+        });
+        
+        if (!connected) {
+          throw new Error('Failed to connect to Infinity wallet.');
+        }
+        
+        const principal = await (window as any).ic.infinityWallet.getPrincipal();
+        return principal.toString();
+      } catch (error) {
+        console.error('Error connecting to Infinity wallet:', error);
+        throw new Error('Failed to connect to Infinity wallet. Please try again.');
       }
       
     default:
