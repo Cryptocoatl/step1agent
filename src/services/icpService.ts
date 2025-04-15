@@ -1,181 +1,167 @@
 
-import { Actor, HttpAgent, Identity } from '@dfinity/agent';
-import { AuthClient } from '@dfinity/auth-client';
-import type { _SERVICE } from '../declarations/backend/backend.did';
-import { createActor as backendCreateActor } from '../declarations/backend';
-import { LOCAL_CANISTERS, HOST } from '../config/canister.config';
+import { AuthClient } from "@dfinity/auth-client";
+import { HttpAgent, Identity } from "@dfinity/agent";
+import { createActor as createBackendActor } from "@/declarations/backend";
+import { createActor as createDigitalIdentityManagerActor } from "@/declarations/digital_identity_manager";
+import { LOCAL_CANISTERS, HOST } from "@/config/canister.config";
 
-// Debug logging
-const debug = (...args: any[]) => {
-  console.log('[ICP Service]', ...args);
-};
-
-// Authentication configuration
-const AUTH_CONFIG = {
-  identityProvider: import.meta.env.VITE_DFX_NETWORK === 'local' 
-    ? `http://127.0.0.1:4943/?canisterId=rdmx6-jaaaa-aaaaa-aaadq-cai` 
-    : 'https://identity.ic0.app',
-  maxTimeToLive: BigInt(7 * 24 * 60 * 60 * 1000 * 1000 * 1000), // 7 days in nanoseconds
-};
-
-debug('Environment:', {
-  network: import.meta.env.VITE_DFX_NETWORK,
-  backendCanister: LOCAL_CANISTERS.backend,
-  frontendCanister: LOCAL_CANISTERS.frontend,
-  identityProvider: AUTH_CONFIG.identityProvider
-});
-
-interface AuthState {
-  isAuthenticated: boolean;
-  identity: Identity | null;
-  principal: string | null;
-}
-
+// Initialize a global AuthClient
 let authClient: AuthClient | null = null;
-let authState: AuthState = {
+
+// State to cache authentication info
+let authState = {
   isAuthenticated: false,
-  identity: null,
-  principal: null,
+  identity: null as Identity | null,
 };
 
-const setupIcpActorConfig = (identity?: Identity) => {
-  const agent = new HttpAgent({ 
-    host: HOST,
-    identity 
-  });
-
-  // Only fetch root key when in local development
-  if (HOST.includes('127.0.0.1')) {
-    try {
-      // We need to provide the global object for the CBOR decoder
-      // Set global for CBOR decoder
-      if (typeof window !== 'undefined' && !(window as any).global) {
-        (window as any).global = window;
-      }
-      
-      agent.fetchRootKey().catch(err => {
-        console.warn('Unable to fetch root key. Error:', err);
-        console.warn('Ensure your local replica is running');
-      });
-    } catch (error) {
-      console.error('Error setting up agent:', error);
-    }
-  }
-  
-  return { agent };
-};
-
-export const createActor = async (identity?: Identity): Promise<_SERVICE> => {
-  const { agent } = setupIcpActorConfig(identity);
-  
-  // Create actor using the generated createActor function
-  const actor = backendCreateActor(LOCAL_CANISTERS.backend, {
-    agent,
-  });
-  
-  // Verify the actor works by calling a simple query method
-  try {
-    const heartbeat = await actor.heartbeat();
-    debug('Actor initialized successfully:', heartbeat);
-  } catch (error) {
-    console.error('Failed to initialize actor:', error);
-    console.error('This may be due to a network issue or the canister not being deployed');
-    console.warn('Continuing with limited functionality');
-  }
-  
-  return actor;
-};
-
-let actor: _SERVICE | null = null;
-
-export const getBackendActor = async (): Promise<_SERVICE> => {
-  if (!actor || authState.identity) {
-    actor = await createActor(authState.identity ?? undefined);
-  }
-  return actor;
-};
-
-// Authentication Methods
-export const initAuth = async (): Promise<void> => {
-  debug('Initializing auth client');
+// Initialize the auth client
+export const initAuth = async (): Promise<AuthClient> => {
   if (!authClient) {
     authClient = await AuthClient.create();
-    debug('Auth client created');
-    const isAuthenticated = await authClient.isAuthenticated();
     
-    if (isAuthenticated) {
-      const identity = authClient.getIdentity();
-      authState = {
-        isAuthenticated: true,
-        identity,
-        principal: identity.getPrincipal().toString(),
-      };
-      // Recreate actor with authenticated identity
-      actor = null;
-      await getBackendActor();
+    // Check if user is already authenticated
+    if (await authClient.isAuthenticated()) {
+      authState.isAuthenticated = true;
+      authState.identity = authClient.getIdentity();
+      console.log("User already authenticated with identity:", authState.identity);
     }
   }
+  return authClient;
 };
 
+// Login with Internet Identity
 export const login = async (): Promise<boolean> => {
-  debug('Starting login process');
-  if (!authClient) await initAuth();
-  
   try {
-    debug('Attempting login with identity provider:', AUTH_CONFIG.identityProvider);
-    const success = await authClient!.login({
-      identityProvider: AUTH_CONFIG.identityProvider,
-      maxTimeToLive: AUTH_CONFIG.maxTimeToLive,
-      onSuccess: async () => {
-        const identity = authClient!.getIdentity();
-        authState = {
-          isAuthenticated: true,
-          identity,
-          principal: identity.getPrincipal().toString(),
-        };
-        // Recreate actor with authenticated identity
-        actor = null;
-        await getBackendActor();
-      },
+    const client = await initAuth();
+
+    // Check if already authenticated
+    if (await client.isAuthenticated()) {
+      console.log("User is already authenticated");
+      authState.isAuthenticated = true;
+      authState.identity = client.getIdentity();
+      return true;
+    }
+
+    return new Promise<boolean>((resolve) => {
+      client.login({
+        identityProvider: process.env.II_URL || 'https://identity.ic0.app',
+        onSuccess: () => {
+          console.log("Successfully logged in");
+          authState.isAuthenticated = true;
+          authState.identity = client.getIdentity();
+          resolve(true);
+        },
+        onError: (error) => {
+          console.error("Login failed:", error);
+          resolve(false);
+        },
+      });
     });
-    
-    return true;
   } catch (error) {
-    console.error('Login failed:', error);
+    console.error("Error during login:", error);
     return false;
   }
 };
 
+// Logout from Internet Identity
 export const logout = async (): Promise<void> => {
-  debug('Starting logout process');
-  if (!authClient) await initAuth();
-  
-  await authClient!.logout();
-  debug('Successfully logged out');
-  authState = {
-    isAuthenticated: false,
-    identity: null,
-    principal: null,
-  };
-  // Recreate actor with anonymous identity
-  actor = null;
-  await getBackendActor();
+  try {
+    const client = await initAuth();
+    await client.logout();
+    authState.isAuthenticated = false;
+    authState.identity = null;
+    console.log("Successfully logged out");
+  } catch (error) {
+    console.error("Error during logout:", error);
+  }
 };
 
-export const getAuthState = (): AuthState => {
-  return { ...authState };
+// Get current authentication state
+export const getAuthState = async (): Promise<{
+  isAuthenticated: boolean;
+  identity: Identity | null;
+}> => {
+  if (!authClient) {
+    await initAuth();
+  }
+  return authState;
 };
 
-// Admin verification methods
-export const verifyAdmin = (): boolean => {
-  if (!authState.principal) return false;
-  const adminId = import.meta.env.VITE_ADMIN_ICP_ID;
-  return authState.principal === adminId;
+// Create an authenticated actor for the Backend canister
+export const getBackendActor = async () => {
+  try {
+    const client = await initAuth();
+    
+    // Create an agent with the user's identity or an anonymous one
+    const agent = new HttpAgent({
+      host: HOST,
+      identity: client.getIdentity(),
+    });
+    
+    // Fetch the root key when in development mode
+    if (import.meta.env.VITE_DFX_NETWORK !== "ic") {
+      // Set global for CBOR decoder if needed
+      if (typeof window !== 'undefined' && !window.global) {
+        window.global = window;
+      }
+      
+      await agent.fetchRootKey();
+    }
+    
+    // Create the actor with the agent
+    const actor = createBackendActor(LOCAL_CANISTERS.backend, {
+      agent,
+    });
+    
+    return actor;
+  } catch (error) {
+    console.error("Error getting backend actor:", error);
+    throw error;
+  }
 };
 
-export const getAdminId = (): string | null => {
-  return import.meta.env.VITE_ADMIN_ICP_ID || null;
+// Create an authenticated actor for the Digital Identity Manager canister
+export const getDigitalIdentityManagerActor = async () => {
+  try {
+    const client = await initAuth();
+    
+    // Create an agent with the user's identity or an anonymous one
+    const agent = new HttpAgent({
+      host: HOST,
+      identity: client.getIdentity(),
+    });
+    
+    // Fetch the root key when in development mode
+    if (import.meta.env.VITE_DFX_NETWORK !== "ic") {
+      // Set global for CBOR decoder if needed
+      if (typeof window !== 'undefined' && !window.global) {
+        window.global = window;
+      }
+      
+      await agent.fetchRootKey();
+    }
+    
+    // Create the actor with the agent
+    const actor = createDigitalIdentityManagerActor(LOCAL_CANISTERS.digital_identity_manager, {
+      agent,
+    });
+    
+    return actor;
+  } catch (error) {
+    console.error("Error getting digital identity manager actor:", error);
+    throw error;
+  }
 };
 
-// Re-export the ICP wallet service from the new location
-export * from './icp/icpWalletService';
+// Check if the canister methods are available
+export const checkCanisterConnection = async (): Promise<boolean> => {
+  try {
+    const actor = await getBackendActor();
+    const response = await actor.heartbeat();
+    console.log("Canister connection check result:", response);
+    return true;
+  } catch (error) {
+    console.error("Canister connection check failed:", error);
+    return false;
+  }
+};

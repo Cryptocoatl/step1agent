@@ -43,7 +43,7 @@ let globalMessages: Message[] = [
   },
 ];
 
-const Step1Agent = ({ className, fullscreen = false, onClose, ...props }: Step1AgentProps) => {
+export const Step1Agent = ({ className, fullscreen = false, onClose, ...props }: Step1AgentProps) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>(globalMessages);
   const [inputValue, setInputValue] = useState("");
@@ -298,107 +298,47 @@ const Step1Agent = ({ className, fullscreen = false, onClose, ...props }: Step1A
                 </Button>
               ))}
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => setShowCapabilities(!showCapabilities)}
-              className="h-8 w-8"
-            >
-              <Sparkles className="h-4 w-4" />
-            </Button>
             {onClose && (
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={onClose}
                 className="h-8 w-8"
+                onClick={onClose}
               >
-                <ArrowUpRight className="h-4 w-4" />
+                <X className="h-4 w-4" />
               </Button>
             )}
           </div>
         </div>
-
-        {/* Capabilities Panel */}
-        {showCapabilities && (
-          <div className="p-4 bg-background/70 border-b border-border overflow-x-auto">
-            <h4 className="text-sm font-medium mb-3 flex items-center">
-              <Zap className="h-4 w-4 mr-2 text-yellow-500" />
-              Agent Capabilities
-            </h4>
-            <div className="flex space-x-2 pb-1">
-              {capabilities.map((capability) => (
-                <AnimatedCard 
-                  key={capability.id} 
-                  className="p-3 min-w-[200px] bg-background border-accent/20"
-                  animation="fade"
-                >
-                  <div className="flex items-center space-x-2 mb-2">
-                    <div className="h-8 w-8 rounded-full bg-accent/10 flex items-center justify-center">
-                      {capability.icon}
-                    </div>
-                    <h5 className="font-medium text-sm">{capability.name}</h5>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-2">{capability.description}</p>
-                  <div className="space-y-1">
-                    {capability.examples.map((example, i) => (
-                      <div 
-                        key={i} 
-                        className="text-xs bg-accent/5 px-2 py-1 rounded-md cursor-pointer hover:bg-accent/10 transition-colors flex items-center"
-                        onClick={() => handleQuickPrompt(example)}
-                      >
-                        <ArrowRight className="h-3 w-3 mr-1 flex-shrink-0" />
-                        <span className="truncate">{example}</span>
-                      </div>
-                    ))}
-                  </div>
-                </AnimatedCard>
-              ))}
-            </div>
-          </div>
-        )}
-
+        
         {/* Messages */}
-        <div className="p-4 overflow-y-auto" style={{ height: showCapabilities ? "calc(100% - 196px)" : "calc(100% - 132px)" }}>
+        <div className="p-4 overflow-auto h-[calc(100%-8rem)]">
           <div className="space-y-4">
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={cn(
-                  "flex",
+                className={`flex ${
                   message.sender === "user" ? "justify-end" : "justify-start"
-                )}
+                }`}
               >
                 <div
-                  className={cn(
-                    "max-w-[80%] rounded-xl p-3",
+                  className={`max-w-[80%] rounded-lg p-3 ${
                     message.sender === "user"
                       ? "bg-accent text-accent-foreground"
-                      : message.category === "blockchain" ? "bg-blue-500/10 text-foreground border border-blue-500/20"
-                      : message.category === "governance" ? "bg-purple-500/10 text-foreground border border-purple-500/20"
-                      : message.category === "community" ? "bg-green-500/10 text-foreground border border-green-500/20"
-                      : message.category === "content" ? "bg-orange-500/10 text-foreground border border-orange-500/20"
-                      : message.category === "tech" ? "bg-cyan-500/10 text-foreground border border-cyan-500/20"
-                      : "bg-secondary text-secondary-foreground"
-                  )}
+                      : "bg-secondary"
+                  }`}
                 >
-                  <p className="text-sm whitespace-pre-line">{message.content}</p>
-                  <p className="text-xs opacity-70 mt-1">
-                    {message.timestamp.toLocaleTimeString([], { 
-                      hour: "2-digit", 
-                      minute: "2-digit" 
-                    })}
-                  </p>
+                  {message.content}
                 </div>
               </div>
             ))}
             {isTyping && (
               <div className="flex justify-start">
-                <div className="bg-secondary text-secondary-foreground max-w-[80%] rounded-xl p-3">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 rounded-full bg-muted-foreground animate-pulse"></div>
-                    <div className="w-2 h-2 rounded-full bg-muted-foreground animate-pulse" style={{ animationDelay: "0.2s" }}></div>
-                    <div className="w-2 h-2 rounded-full bg-muted-foreground animate-pulse" style={{ animationDelay: "0.4s" }}></div>
+                <div className="max-w-[80%] rounded-lg p-3 bg-secondary">
+                  <div className="flex space-x-2">
+                    <div className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce"></div>
+                    <div className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce [animation-delay:0.2s]"></div>
+                    <div className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce [animation-delay:0.4s]"></div>
                   </div>
                 </div>
               </div>
@@ -406,78 +346,65 @@ const Step1Agent = ({ className, fullscreen = false, onClose, ...props }: Step1A
             <div ref={messagesEndRef} />
           </div>
         </div>
-
-        {/* Quick prompts */}
-        <div className="px-4 py-2 border-t border-border bg-background/50">
-          <div className="flex overflow-x-auto gap-2 pb-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="text-xs whitespace-nowrap"
-              onClick={() => handleQuickPrompt("How do I create my digital identity?")}
-            >
-              <Wallet className="h-3 w-3 mr-1" />
-              Digital Identity
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="text-xs whitespace-nowrap"
-              onClick={() => handleQuickPrompt("How does DAO governance work?")}
-            >
-              <Users className="h-3 w-3 mr-1" />
-              DAO Governance
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="text-xs whitespace-nowrap"
-              onClick={() => handleQuickPrompt("Tell me about regenerative tokenomics")}
-            >
-              <Leaf className="h-3 w-3 mr-1" />
-              Tokenomics
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="text-xs whitespace-nowrap"
-              onClick={() => handleQuickPrompt("How can I start a regenerative mission?")}
-            >
-              <Globe className="h-3 w-3 mr-1" />
-              Start Mission
-            </Button>
-          </div>
-        </div>
-
-        {/* Input */}
-        <div className="p-4 border-t border-border bg-background/50">
-          <div className="flex items-center space-x-2">
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={`Ask about digital identity, DAO governance, or regenerative projects...`}
-              className="flex-1 bg-secondary/50 border-0 rounded-lg px-4 py-2 text-sm focus:ring-1 focus:ring-accent"
-            />
+        
+        {/* Quick Actions & Input */}
+        <div className="p-4 border-t border-border bg-secondary/30">
+          {showCapabilities && (
+            <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-2">
+              {capabilities.map((cap) => (
+                <Button
+                  key={cap.id}
+                  variant="outline"
+                  className="justify-start text-left h-auto py-2 bg-secondary/50 hover:bg-secondary"
+                  onClick={() => {
+                    handleQuickPrompt(cap.examples[Math.floor(Math.random() * cap.examples.length)]);
+                    setShowCapabilities(false);
+                  }}
+                >
+                  <div className="flex items-center">
+                    <div className="mr-2 text-accent">{cap.icon}</div>
+                    <div className="text-xs">
+                      <div className="font-medium">{cap.name}</div>
+                      <div className="text-muted-foreground truncate max-w-[180px]">{cap.description}</div>
+                    </div>
+                  </div>
+                </Button>
+              ))}
+            </div>
+          )}
+          <div className="flex space-x-2">
             <Button
+              variant="outline"
               size="icon"
+              className="h-10 w-10 shrink-0"
+              onClick={() => setShowCapabilities(!showCapabilities)}
+            >
+              <Sparkles className="h-4 w-4" />
+            </Button>
+            <div className="relative flex-grow">
+              <textarea
+                className="w-full h-10 min-h-[2.5rem] py-2 px-3 bg-secondary rounded-md resize-none"
+                placeholder="Message Step1 Agent..."
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                rows={1}
+                style={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis"
+                }}
+              />
+            </div>
+            <Button
+              className="h-10 w-10 shrink-0 rounded-full p-0 bg-accent hover:bg-accent/90"
               onClick={handleSendMessage}
               disabled={!inputValue.trim()}
-              className="h-9 w-9 rounded-lg bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
             >
-              <Send size={16} />
+              <Send className="h-4 w-4" />
             </Button>
           </div>
-          {!user && (
-            <p className="text-xs text-muted-foreground mt-2 text-center">
-              Sign in to save your conversation history and access more features
-            </p>
-          )}
         </div>
       </GlassPanel>
     </div>
   );
 };
-
-export { Step1Agent };

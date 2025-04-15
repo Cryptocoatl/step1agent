@@ -1,173 +1,78 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
-
-// Define reward types
-export type RewardType = 
-  | 'video_watch' 
-  | 'wallet_connect' 
-  | 'profile_completion' 
-  | 'kyc_verification';
-
-// Define content types
-export type ContentType = 
-  | 'video' 
-  | 'tutorial' 
-  | 'article';
+import { getBackendActor } from "./icpService";
 
 // Function to award tokens to a user
 export const awardTokens = async (
-  rewardType: RewardType, 
-  tokenAmount: number, 
+  rewardType: string,
+  amount: number,
   description: string
-): Promise<boolean> => {
+) => {
   try {
-    // Get current user ID
-    const { data: userData } = await supabase.auth.getUser();
-    const userId = userData.user?.id;
-    
-    if (!userId) {
-      throw new Error('User not authenticated');
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error("User not authenticated");
     }
     
-    const { data, error } = await supabase
+    // First try to use the ICP canister to record the reward
+    try {
+      const actor = await getBackendActor();
+      await actor.earnReward(rewardType, amount, description);
+    } catch (error) {
+      console.error("Error recording reward in ICP canister:", error);
+      // Continue to record in Supabase as fallback
+    }
+    
+    // Also record in Supabase for client-side usage
+    const { error } = await supabase
       .from('user_rewards')
       .insert({
-        user_id: userId,
+        user_id: user.id,
+        token_amount: amount,
         reward_type: rewardType,
-        token_amount: tokenAmount,
-        description: description
-      });
-    
-    if (error) throw error;
-    
-    toast({
-      title: `${tokenAmount} STEP1 Tokens Earned!`,
-      description: description,
-    });
-    
-    return true;
-  } catch (error) {
-    console.error('Error awarding tokens:', error);
-    toast({
-      title: 'Failed to award tokens',
-      description: 'There was an error processing your reward. Please try again.',
-      variant: 'destructive'
-    });
-    return false;
-  }
-};
-
-// Function to mark content as completed
-export const markContentCompleted = async (
-  contentId: string, 
-  contentType: ContentType
-): Promise<boolean> => {
-  try {
-    // Get current user ID
-    const { data: userData } = await supabase.auth.getUser();
-    const userId = userData.user?.id;
-    
-    if (!userId) {
-      throw new Error('User not authenticated');
-    }
-    
-    // Check if already completed
-    const { data: existing } = await supabase
-      .from('content_completion')
-      .select()
-      .eq('content_id', contentId)
-      .single();
-    
-    if (existing) {
-      return true; // Already completed
-    }
-    
-    // Insert completion record
-    const { error } = await supabase
-      .from('content_completion')
-      .insert({
-        user_id: userId,
-        content_id: contentId,
-        content_type: contentType
+        description
       });
     
     if (error) throw error;
     
     return true;
   } catch (error) {
-    console.error('Error marking content as completed:', error);
-    return false;
-  }
-};
-
-// Function to check if a piece of content is completed
-export const isContentCompleted = async (contentId: string): Promise<boolean> => {
-  try {
-    const { data: userData } = await supabase.auth.getUser();
-    const userId = userData.user?.id;
-    
-    if (!userId) return false;
-    
-    const { data, error } = await supabase
-      .from('content_completion')
-      .select()
-      .eq('content_id', contentId)
-      .eq('user_id', userId)
-      .single();
-    
-    if (error && error.code !== 'PGRST116') { // PGRST116 is the "not found" error code
-      throw error;
-    }
-    
-    return !!data;
-  } catch (error) {
-    console.error('Error checking content completion:', error);
+    console.error("Error awarding tokens:", error);
     return false;
   }
 };
 
 // Function to get total token balance
-export const getTotalTokenBalance = async (): Promise<number> => {
+export const getTotalTokenBalance = async () => {
   try {
-    const { data: userData } = await supabase.auth.getUser();
-    const userId = userData.user?.id;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return 0;
+    }
     
-    if (!userId) return 0;
+    // Try to get from ICP canister first
+    try {
+      const actor = await getBackendActor();
+      const rewards = await actor.getRewards();
+      if (rewards && rewards.length > 0) {
+        return rewards.reduce((total, reward) => total + Number(reward.amount), 0);
+      }
+    } catch (error) {
+      console.error("Error getting rewards from ICP canister:", error);
+      // Continue to use Supabase as fallback
+    }
     
+    // Get from Supabase as fallback
     const { data, error } = await supabase
       .from('user_rewards')
       .select('token_amount')
-      .eq('user_id', userId);
+      .eq('user_id', user.id);
     
     if (error) throw error;
     
-    return data.reduce((total, reward) => total + reward.token_amount, 0);
+    return data?.reduce((total, reward) => total + reward.token_amount, 0) || 0;
   } catch (error) {
-    console.error('Error getting token balance:', error);
+    console.error("Error getting total token balance:", error);
     return 0;
-  }
-};
-
-// Function to get all rewards
-export const getUserRewards = async () => {
-  try {
-    const { data: userData } = await supabase.auth.getUser();
-    const userId = userData.user?.id;
-    
-    if (!userId) return [];
-    
-    const { data, error } = await supabase
-      .from('user_rewards')
-      .select('*')
-      .eq('user_id', userId)
-      .order('earned_at', { ascending: false });
-    
-    if (error) throw error;
-    
-    return data;
-  } catch (error) {
-    console.error('Error getting user rewards:', error);
-    return [];
   }
 };
