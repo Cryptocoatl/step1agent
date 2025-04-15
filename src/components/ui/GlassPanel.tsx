@@ -1,31 +1,28 @@
 
-import { cn } from "@/lib/utils";
-import React from "react";
+import * as React from 'react';
+import { cn } from '@/lib/utils';
 
 interface GlassPanelProps extends React.HTMLAttributes<HTMLDivElement> {
-  intensity?: "light" | "medium" | "heavy";
-  border?: boolean;
-  glow?: boolean;
+  variant?: 'default' | 'dark' | 'light' | 'gold';
   children: React.ReactNode;
+  className?: string;
 }
 
-const GlassPanel = React.forwardRef<HTMLDivElement, GlassPanelProps>(
-  ({ className, intensity = "medium", border = true, glow = false, children, ...props }, ref) => {
-    const intensityStyles = {
-      light: "bg-white/10 dark:bg-black/20 backdrop-blur-md",
-      medium: "bg-white/20 dark:bg-black/40 backdrop-blur-lg",
-      heavy: "bg-white/30 dark:bg-black/60 backdrop-blur-xl",
+export const GlassPanel = React.forwardRef<HTMLDivElement, GlassPanelProps>(
+  ({ className, variant = 'default', children, ...props }, ref) => {
+    const variantClasses = {
+      default: 'bg-card/50 backdrop-blur-md border border-white/10',
+      dark: 'bg-black/30 backdrop-blur-md border border-white/10',
+      light: 'bg-white/10 backdrop-blur-md border border-white/20',
+      gold: 'bg-amber-950/30 backdrop-blur-md border border-amber-500/30'
     };
 
     return (
       <div
         ref={ref}
         className={cn(
-          intensityStyles[intensity],
-          border && "border border-white/20 dark:border-white/10",
-          glow && "animate-cosmic-pulse",
-          "rounded-xl shadow-lg",
-          "transition-all duration-300 ease-in-out",
+          'rounded-xl shadow-md relative overflow-hidden',
+          variantClasses[variant],
           className
         )}
         {...props}
@@ -36,6 +33,4 @@ const GlassPanel = React.forwardRef<HTMLDivElement, GlassPanelProps>(
   }
 );
 
-GlassPanel.displayName = "GlassPanel";
-
-export { GlassPanel };
+GlassPanel.displayName = 'GlassPanel';

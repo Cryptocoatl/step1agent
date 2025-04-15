@@ -23,26 +23,26 @@
     --muted: 240 25% 15%;
     --muted-foreground: 240 5% 70%;
 
-    --accent: 225 80% 65%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 43 74% 66%;
+    --accent-foreground: 43 74% 15%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 240 30% 20%;
     --input: 240 30% 20%;
-    --ring: 142.1 76.2% 36.3%;
+    --ring: 35 91.7% 32.9%;
 
     --radius: 0.75rem;
 
     --sidebar-background: 230 30% 12%;
     --sidebar-foreground: 240 5.3% 85%;
-    --sidebar-primary: 225 80% 65%;
-    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-primary: 43 74% 66%;
+    --sidebar-primary-foreground: 0 0% 0%;
     --sidebar-accent: 240 25% 15%;
     --sidebar-accent-foreground: 240 5% 95%;
     --sidebar-border: 240 30% 20%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 35 91.7% 32.9%;
   }
 
   .light {
@@ -64,26 +64,26 @@
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
 
-    --accent: 225 80% 56%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 43 74% 66%;
+    --accent-foreground: 43 74% 15%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 142.1 76.2% 36.3%;
+    --ring: 35 91.7% 32.9%;
 
     --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary: 35 91.7% 32.9%;
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 35 91.7% 32.9%;
   }
 }
 
@@ -117,11 +117,11 @@
   }
 
   .card-hover {
-    @apply transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:bg-white/10;
+    @apply transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:bg-amber-500/10;
   }
 
   .nav-link {
-    @apply px-4 py-2 rounded-md text-sm font-medium text-primary transition-colors hover:bg-white/10 hover:text-foreground;
+    @apply px-4 py-2 rounded-md text-sm font-medium text-primary transition-colors hover:bg-amber-500/10 hover:text-amber-200;
   }
 
   .button-animated {
@@ -142,7 +142,7 @@
   }
   
   .cosmic-border {
-    @apply border border-white/10 backdrop-blur-md bg-white/5;
+    @apply border border-amber-500/20 backdrop-blur-md bg-amber-500/5;
   }
   
   .star-field {
@@ -151,6 +151,11 @@
   
   .star-field::before {
     @apply content-[''] absolute inset-0 bg-[radial-gradient(white,_rgba(255,255,255,0)_2px)_0_0/5px_5px] opacity-30;
+  }
+
+  /* Text gradient styles */
+  .text-gradient {
+    @apply bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent;
   }
 }
 
@@ -161,8 +166,8 @@
 }
 
 @keyframes cosmic-pulse {
-  0%, 100% { box-shadow: 0 0 15px rgba(89, 130, 206, 0.3); }
-  50% { box-shadow: 0 0 25px rgba(89, 130, 206, 0.6); }
+  0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.6); }
 }
 
 @keyframes float-gentle {
@@ -181,4 +186,43 @@
 
 .animate-float-gentle {
   animation: float-gentle 6s ease-in-out infinite;
+}
+
+/* Gold coin styles */
+.gold-coin {
+  background: linear-gradient(145deg, #f59e0b, #d97706);
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.5);
+}
+
+.gold-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.gold-shine::after {
+  content: '';
+  position: absolute;
+  top: -110%;
+  left: -210%;
+  width: 200%;
+  height: 200%;
+  opacity: 0;
+  transform: rotate(30deg);
+  background: rgba(255, 255, 255, 0.13);
+  background: linear-gradient(
+    to right, 
+    rgba(255, 255, 255, 0.13) 0%,
+    rgba(255, 255, 255, 0.13) 77%,
+    rgba(255, 255, 255, 0.5) 92%,
+    rgba(255, 255, 255, 0.0) 100%
+  );
+}
+
+.gold-shine:hover::after {
+  opacity: 1;
+  top: -30%;
+  left: -30%;
+  transition-property: left, top, opacity;
+  transition-duration: 0.7s, 0.7s, 0.15s;
+  transition-timing-function: ease;
 }
