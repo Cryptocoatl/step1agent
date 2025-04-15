@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -25,6 +26,8 @@ export async function signUp(email: string, password: string, metadata?: any) {
     // Get the current URL origin
     const redirectUrl = `${window.location.origin}/auth?verified=true`;
     
+    console.log('Signing up with redirect URL:', redirectUrl);
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -38,6 +41,18 @@ export async function signUp(email: string, password: string, metadata?: any) {
       throw error;
     }
     
+    // Check if email confirmation is needed
+    if (data?.user?.identities?.length === 0) {
+      toast({
+        title: "Account already exists",
+        description: "Please check your email or try signing in",
+        variant: "destructive"
+      });
+      return { data, error: null };
+    }
+    
+    console.log('Sign up successful, email verification status:', data?.user?.email_confirmed_at ? 'Confirmed' : 'Pending');
+    
     toast({
       title: "Verification email sent",
       description: "Please check your email to verify your account"
@@ -45,6 +60,7 @@ export async function signUp(email: string, password: string, metadata?: any) {
     
     return { data, error: null };
   } catch (error: any) {
+    console.error('Sign up error:', error);
     toast({
       title: "Sign up failed",
       description: error.message,
@@ -101,18 +117,23 @@ export async function resetPassword(email: string) {
 
 export async function resendVerificationEmail(email: string) {
   try {
+    console.log('Resending verification email to:', email);
+    const redirectUrl = `${window.location.origin}/auth?verified=true`;
+    
     const { data, error } = await supabase.auth.resend({
       type: 'signup',
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth?verified=true`
+        emailRedirectTo: redirectUrl
       }
     });
 
     if (error) {
+      console.error('Error resending verification email:', error);
       throw error;
     }
 
+    console.log('Verification email resent successfully');
     toast({
       title: "Verification email sent",
       description: `A new verification email has been sent to ${email}`
@@ -120,6 +141,7 @@ export async function resendVerificationEmail(email: string) {
     
     return { data, error: null };
   } catch (error: any) {
+    console.error('Error in resendVerificationEmail:', error);
     toast({
       title: "Failed to send verification email",
       description: error.message,
@@ -146,6 +168,7 @@ export async function checkUserSession() {
 
 export async function createUserProfile(userId: string, displayName: string) {
   try {
+    console.log('Creating user profile for:', userId, 'with display name:', displayName);
     const { error } = await supabase
       .from('profiles')
       .insert({
@@ -154,9 +177,11 @@ export async function createUserProfile(userId: string, displayName: string) {
       });
     
     if (error) {
+      console.error('Error creating profile:', error);
       throw error;
     }
     
+    console.log('User profile created successfully');
     return { error: null };
   } catch (error: any) {
     console.error("Error creating user profile:", error);

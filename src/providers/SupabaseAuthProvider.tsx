@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useSupabaseAuth } from '@/hooks/use-supabase-auth';
+import { signIn, signUp, signOut, resetPassword } from '@/services/authService';
 
 interface AuthContextType {
   session: Session | null;
@@ -20,28 +21,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const auth = useSupabaseAuth();
-  
-  // Sign in with email and password
-  const signIn = async (email: string, password: string) => {
-    return await supabase.auth.signInWithPassword({ email, password });
-  };
-  
-  // Sign up with email and password
-  const signUp = async (email: string, password: string) => {
-    return await supabase.auth.signUp({ email, password });
-  };
-  
-  // Sign out
-  const signOut = async () => {
-    await supabase.auth.signOut();
-  };
-  
-  // Reset password
-  const resetPassword = async (email: string) => {
-    return await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-  };
   
   // Update user profile
   const updateProfile = async (profileData: any) => {

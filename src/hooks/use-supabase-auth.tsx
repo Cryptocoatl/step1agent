@@ -20,12 +20,14 @@ export function useSupabaseAuth() {
       (event, session) => {
         if (!mounted) return;
         
-        console.log('Auth state changed:', event);
+        console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          setIsEmailVerified(session.user.email_confirmed_at != null);
+          const emailConfirmed = session.user.email_confirmed_at != null;
+          console.log('Email confirmed at:', session.user.email_confirmed_at);
+          setIsEmailVerified(emailConfirmed);
           
           // To avoid potential deadlock, defer fetching profile data with setTimeout
           setTimeout(async () => {
@@ -38,8 +40,10 @@ export function useSupabaseAuth() {
                 .eq('id', session.user.id)
                 .single();
                 
+              console.log('Profile data:', profileData);
+                
               // If new sign-up and email is verified, prepare for digital-id
-              if (event === 'SIGNED_IN' && session.user.email_confirmed_at) {
+              if (event === 'SIGNED_IN' && emailConfirmed) {
                 // If this is a new user that just confirmed email
                 if (!profileData?.display_name) {
                   toast({
@@ -50,6 +54,7 @@ export function useSupabaseAuth() {
                   // Create user profile if it doesn't exist
                   if (!profileData) {
                     const defaultName = session.user.email?.split('@')[0] || "STEP1 User";
+                    console.log('Creating default profile with name:', defaultName);
                     await supabase
                       .from('profiles')
                       .insert({
@@ -62,12 +67,16 @@ export function useSupabaseAuth() {
                   // Generate a deterministic "simulated" ICP address based on the user's id
                   const walletAddress = `icp-${session.user.id.substring(0, 8)}`;
                   
+                  console.log('Creating ICP wallet with address:', walletAddress);
+                  
                   // Connect the wallet
                   const walletConnected = await connectWallet(
                     walletAddress,
                     'Smart Wallet',
                     'icp'
                   );
+                  
+                  console.log('Wallet connected:', walletConnected);
                   
                   // Award tokens for completing verification
                   if (walletConnected) {
@@ -111,11 +120,17 @@ export function useSupabaseAuth() {
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
+      
+      console.log('Initial session check:', session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
+      
       if (session?.user) {
-        setIsEmailVerified(session.user.email_confirmed_at != null);
+        const emailConfirmed = session.user.email_confirmed_at != null;
+        console.log('Initial email confirmed check:', emailConfirmed);
+        setIsEmailVerified(emailConfirmed);
       }
+      
       setIsLoading(false);
     });
 

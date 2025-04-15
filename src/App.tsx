@@ -27,8 +27,9 @@ const AppRoutes = () => {
       console.log('App is loading...');
     } else if (session) {
       console.log('User session:', session);
+      console.log('Email verified:', isEmailVerified);
       // If email is verified, redirect to digital-id
-      if (isEmailVerified && window.location.pathname === '/login') {
+      if (isEmailVerified && (window.location.pathname === '/login' || window.location.pathname === '/auth')) {
         navigate('/digital-id');
       }
     } else {
