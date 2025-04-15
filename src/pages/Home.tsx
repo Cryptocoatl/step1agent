@@ -7,7 +7,7 @@ import { HeroMissionsSection } from '@/components/missions/HeroMissionsSection';
 import { useAuth } from '@/providers/SupabaseAuthProvider';
 import { getTotalTokenBalance } from '@/services/rewardsService';
 import { useState, useEffect } from 'react';
-import { Leaf, Users, Wallet, Globe, Award, ArrowRight } from 'lucide-react';
+import { Leaf, Users, Wallet, Globe, Award, ArrowRight, FileText } from 'lucide-react';
 import Footer from '@/components/layout/Footer';
 import { Step1Logo } from '@/components/ui/Step1Logo';
 import { Step1Token } from '@/components/ui/Step1Token';
@@ -59,6 +59,26 @@ export default function HomePage() {
                 </h1>
                 <div className="h-1 w-24 bg-gradient-to-r from-amber-300 to-amber-500 rounded-full" />
               </div>
+            </div>
+            
+            {/* Mission Statement */}
+            <div className="bg-amber-500/10 border border-amber-500/20 p-6 rounded-xl">
+              <p className="text-xl text-amber-100 font-medium flex items-center mb-2">
+                <span className="mr-2">🌱</span> Our Mission:
+              </p>
+              <p className="text-lg text-muted-foreground mb-4 leading-relaxed">
+                To create a regenerative digital ecosystem that empowers individuals with sovereign identity control while connecting communities across blockchains for positive global impact.
+              </p>
+              <Button 
+                asChild
+                variant="outline" 
+                size="sm" 
+                className="border-amber-500/30 text-amber-100 hover:bg-amber-500/10 flex items-center gap-2"
+              >
+                <a href="/whitepaper.pdf" target="_blank" rel="noopener noreferrer">
+                  <FileText className="h-4 w-4" /> Read our Whitepaper
+                </a>
+              </Button>
             </div>
             
             <p className="text-xl text-muted-foreground mb-8 max-w-lg leading-relaxed">
