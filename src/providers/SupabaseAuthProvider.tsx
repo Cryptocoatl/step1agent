@@ -12,7 +12,7 @@ interface AuthContextType {
   isEmailVerified: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any | null, data: any | null }>;
   signUp: (email: string, password: string) => Promise<{ error: any | null, data: any | null }>;
-  signOut: () => Promise<void>;
+  signOut: () => Promise<{ error?: any | null }>;
   resetPassword: (email: string) => Promise<{ error: any | null, data: any | null }>;
   updateProfile: (profileData: any) => Promise<{ error: any | null, data: any | null }>;
 }
