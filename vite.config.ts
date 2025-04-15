@@ -17,7 +17,13 @@ export default defineConfig(({ mode }) => {
       },
     },
     server: {
-      port: 8080
+      port: 8080,
+      hmr: {
+        // Ensure HMR is properly configured
+        protocol: 'ws',
+        host: 'localhost',
+        clientPort: 8080
+      }
     },
     build: {
       outDir: 'dist',
@@ -27,6 +33,8 @@ export default defineConfig(({ mode }) => {
     define: {
       // Ensure env variables are properly stringified
       '__APP_ENV__': JSON.stringify(env),
+      // Add a fallback for the WebSocket token if it's not defined
+      '__WS_TOKEN__': JSON.stringify(process.env.WS_TOKEN || 'development')
     }
   };
 });
